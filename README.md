@@ -50,7 +50,7 @@ Configure the .env file with your database credentials (PostgreSQL):env
 Run database migrations:
 
     php artisan migrate
-    Serve the application:
+Serve the application:
 
     php artisan serve
 Running Tests
