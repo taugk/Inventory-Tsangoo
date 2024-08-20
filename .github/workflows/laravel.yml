@@ -55,4 +55,7 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
+      - name: Run Inventory
+        run: php artisan serve
+
 
