@@ -1,4 +1,4 @@
-Inventory Management System
+                                                                                                    Inventory Management System
 Overview
 The Inventory Management System is a web-based application designed for small businesses to manage and track their inventory efficiently. Built using Laravel 11 and PostgreSQL, this system provides robust features including user authentication, role-based access control, inventory tracking, and more.
 
