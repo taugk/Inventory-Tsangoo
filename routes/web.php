@@ -46,15 +46,6 @@ Route::post('/fetch_item_details', [PurchaseController::class, 'fetch_item_detai
 Route::get('/list_purchase', [PurchaseController::class, 'list_purchase']);
 
 
-
-Route::get('/add_customer', [CustomerController::class, 'add_customer']);
-Route::post('/add_customer', [CustomerController::class, 'add_customer_post']);
-Route::get('/list_customer', [CustomerController::class, 'list_customer']);
-Route::post('/get_customer', [CustomerController::class, 'get_customer']);
-Route::post('/edit_customer', [CustomerController::class, 'edit_customer']);
-Route::post('/edit_customer_post', [CustomerController::class, 'edit_customer_post']);
-
-
 Route::get('/export', [InventoryController::class, 'exportInventory']);
 Route::get('/import', [InventoryController::class, 'importInventory']);
 Route::post('/import', [InventoryController::class, 'importInventoryPost']);

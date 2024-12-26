@@ -39,7 +39,7 @@ class UserController extends Controller
             return view('index', compact('sum_qty', 'total_amount', 'supplier_count', 'logs', 'low_stock_items'));
         }
         else {
-            "Gagal";
+            return redirect('login');
         }
 
     }
@@ -48,10 +48,9 @@ class UserController extends Controller
         $data = User::all();
         if(count ($data)>0) {
             return view('login', compact('data'));
-
         }
         else {
-            return view('registration');
+            return view('login');
         }
     }
 

@@ -1,5 +1,5 @@
 @include('layouts.header')
-<!-- CSS Start-->
+<!-- CSS Start -->
 @include('layouts.css')
 <link href="{{asset('assets/plugins/tables/css/datatable/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
 
@@ -14,148 +14,106 @@
         <div class="col p-md-0">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Daftar Barang</a></li>
             </ol>
         </div>
     </div>
-    @if (Session::has('success'))
-    <div class="alert alert-success">
-        {{Session::get('success')}}
-    </div>
-    @endif
-    @if (Session::has('fail'))
-    <div class="alert alert-danger">
-        {{Session::get('fail')}}
-    </div>
-    @endif
 
     <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <!-- Sidebar -->
-                    <div class="col-md-3">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4><span class="text-body">Item List</span></h4>
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                data-target=".bd-example-modal-lg">Add Item</button>
-                        </div>
-                        <hr>
-                        <div class="mb-3">
-                            <input type="text" id="itemSearch" class="form-control" placeholder="Search Item...">
-                        </div>
-                        <hr>
-                        <div class="item-list activity" id="activity">
-                            <table id="itemTable" class="table table-bordered table-hover verticle-middle">
-                                <tbody>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Qty</th>
-                                    </tr>
-                                    <!-- Cek apakah ada item yang tersedia -->
-                                    @if(isset($list_item) && $list_item->count() > 0)
-                                    @foreach($list_item as $value)
-                                        <tr class="item-rowid" data-id="{{ $value->id }}" data-name="{{ $value->item_name }}">
-                                            <td>
-                                                <a href="#" id="item-link" data-id="{{ $value->id }}" data-name="{{ $value->item_name }}">
-                                                    {{ $value->item_name }}
-                                                </a>
-                                            </td>
-                                            <td>{{ $value->item_stock }}</td>
-                                        </tr>
-                                    @endforeach
-                                    @else
-                                    <tr>
-                                        <td colspan="2" class="text-center text-danger">No items found</td>
-                                    </tr>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Daftar Barang</h4>
+                        <a href="{{ url('add_item') }}" class="btn btn-primary">Tambah Barang</a>
 
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <!-- Main Content -->
-                    <div class="col-md-9 item-details">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4><span id="item_name_view">{{ $list_item[0]->item_name ?? '' }}</span></h4>
-                            <div id="data-item_id"></div>
-                        </div>
-                        <hr>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <p>Sale Price: <span class="text-success" id="item_sale_view">₹ {{ $list_item[0]->item_sale ?? 0 }}</span></p>
-                                <p>Purchase Price: <span class="text-success" id="item_purchase_view">₹ {{ $list_item[0]->item_purchase ?? 0 }}</span></p>
+                        <script>
+                            @if (session('success'))
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: '{{ session('success') }}',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    timer: 5000
+                                });
+                            @endif
+
+                            @if (session('error'))
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: '{{ session('error') }}',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    timer: 5000
+                                });
+                            @endif
+                        </script>
+
+                        <div class="table-responsive">
+                            <div class="form-group col-md-4 float-right d-flex">
+                                <input type="text" class="form-control" id="globalSearchInput" placeholder="Cari Barang...">
+                                <button type="button" class="btn btn-primary ml-2" id="globalSearchButton">
+                                    <i class="fas fa-search"></i> Cari
+                                </button>
                             </div>
-                            <div class="col-md-6">
-                                <p>Stock Quantity: <span class="text-danger" id="item_stock_view">{{ $list_item[0]->item_stock ?? 0 }}</span></p>
-                                <p>Stock Value: <span class="text-success" id="item_stockvalue_view">0</span></p>
-                            </div>
-                        </div>
-                        <hr>
 
-                        <!-- Transactions Table -->
-                        <h5>Transactions</h5>
-
-                        <div class="transaction-list">
-                            <table id="transactionsTable" class="table table-bordered verticle-middle">
+                            <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Type</th>
-                                        <th>Invoice/Ref. No</th>
-                                        <th>Name</th>
-                                        <th>Date</th>
-                                        <th>Quantity</th>
-                                        <th>Price/Unit</th>
-                                        <th>Amount</th>
+                                        <th>Nama Barang</th>
+                                        <th>Deskripsi</th>
+                                        <th>Kategori</th>
+                                        <th>Jumlah</th>
+                                        <th>Harga</th>
+                                        <th>Kadaluarsa</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Data will be dynamically loaded here -->
+                                    @if($items->count() > 0)
+                                    @foreach($items as $item)
+                                    <tr>
+                                        <td>{{ $item->name }}</td>
+                                        <td>{{ $item->description }}</td>
+                                        <td>{{ $item->category ? $item->category->name : 'Tidak Ada Kategori' }}</td>
+                                        <td>{{ $item->quantity }}</td>
+                                        <td>Rp{{ number_format($item->price, 2, ',', '.') }}</td>
+                                        <td>{{ $item->expiry_date ? $item->expiry_date->format('d-m-Y') : 'N/A' }}</td>
+                                        <td>
+                                            <form action="{{ url('inventory_delete', $item->id) }}" method="POST" id="delete-form-{{ $item->id }}" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-danger delete-btn" id="delete" data-id="{{ $item->id }}"><i class="far fa-trash-alt"></i></button>
+                                            </form>
+                                            <a href="{{ url('inventory_edit', $item->id) }}" class="btn btn-warning"><i class="far fa-edit"></i></a>
+                                            <a href="{{ url('inventory_detail', $item->id) }}" class="btn btn-info"><i class="far fa-eye"></i></a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                    @else
+                                    <tr>
+                                        <td colspan="7" style="text-align:center;">Tidak ada data barang.</td>
+                                    </tr>
+                                    @endif
+
+                                    <tr id="noDataRow" style="display:none;">
+                                        <td colspan="7" style="text-align:center; color: red;">Data tidak ditemukan.</td>
+                                    </tr>
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 <!--**********************************
         Content body end
 ***********************************-->
 
-@include('layouts.modal')
-@include('layouts.ajax')
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        // Search functionality
-        $('#itemSearch').on('keyup', function() {
-            var value = $(this).val().toLowerCase();
-            $('#itemTable tbody tr').filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-            });
-        });
-    });
-</script>
-
-@include('layouts.js')
-
-<script>
-    // Slimscroll setup for activity sidebar
-    $('.activity').slimscroll({
-        position: "right",
-        size: "5px",
-        height: "390px",
-        color: "transparent"
-    });
-</script>
-
-@include('layouts.foot')
+@include('layouts.footer')
