@@ -12,7 +12,9 @@
         <div class="col p-md-0">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+                <li class="breadcrumb-item active"><a href="{{ url('index') }}">Home</a></li>
+                <li class="breadcrumb-item active"><a href="{{ url('emp_list') }}">Karyawan</a></li>
+                <li class="breadcrumb-item active"><a href="{{ url('emp_registration') }}">Tambah</a></li>
             </ol>
         </div>
     </div>
@@ -20,7 +22,7 @@
     <div class="col-lg-8 ">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title">Employee Registration</h4>
+                <h4 class="card-title">Tambah Karyawan</h4>
                 <hr>
                 <form class="form-group" name="emp_registration" id="emp_registration"
                     action="{{url('emp_registration')}}" method="POST">
@@ -38,35 +40,30 @@
                     @endif
                     <div class="form-row">
                         <div class="form-group col-md-3">
-                            <label>Emp Type</label>
+                            <label>Posisi</label>
                             <select class="form-control" id="type" name="type" required>
-                                <option value="">Select EMP Type</option>
-                                <option value="admin">Admin</option>
-                                <option value="user">User</option>
+                                <option value="">Pilih Poisi</option>
+                                <option value="2">Admin</option>
+                                <option value="3">User</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-4">
-                            <label>First Name</label>
-                            <input type="text" class="form-control input-default" name="fname" id="fname"
-                                placeholder="First Name" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label>Last Name</label>
+                            <label>Nama Lengkap</label>
                             <input type="text" class="form-control input-default" name="lname" id="lname"
-                                placeholder="Last Name" required>
+                                placeholder="Nama Lengkap" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-4">
-                            <label>Mobile</label>
+                            <label>Nomor Handphone</label>
                             <input type="tel" class="form-control input-default" name="mobile" id="mobile"
-                                placeholder="Mobile" pattern="[0-9]{10}" required>
+                                placeholder="+628-1234-1234" required>
                         </div>
                         <div class="form-group col-md-4">
-                            <label>DOB</label>
-                            <input type="date" class="form-control input-default" name="dob" id="dob" placeholder="DOB"
+                            <label>Tanggal Lahir</label>
+                            <input type="date" class="form-control input-default" name="dob" id="dob" placeholder="Tanggal Lahir"
                                 required>
                         </div>
                     </div>
@@ -84,31 +81,30 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-8">
-                            <label>Address</label>
+                            <label>Alamat</label>
                             <input type="text" class="form-control input-default" name="address" id="address"
-                                placeholder="Address" required>
+                                placeholder="Alamat Lengkap" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-4">
-                            <label>City</label>
+                            <label>Kota</label>
                             <input type="text" class="form-control input-default" name="city" id="city"
-                                placeholder="City" required>
+                                placeholder="Kota" required>
                         </div>
                         <div class="form-group col-md-4">
-                            <label>State</label>
+                            <label>Provinsi</label>
                             <input type="text" class="form-control input-default" name="state" id="state"
-                                placeholder="State" required>
+                                placeholder="Provinsi" required>
                         </div>
                         <div class="form-group col-md-4">
-                            <label>Pincode</label>
+                            <label>Kode Pos</label>
                             <input type="number" class="form-control input-default" name="pincode" id="pincode"
-                                placeholder="Pincode" pattern="[0-9]{6}" maxlength="6" required>
+                                placeholder="Kode Pos" pattern="[0-9]{6}" maxlength="6" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-dark float-right">Save</button>
+                    <button type="submit" class="btn btn-dark float-right">Simpan</button>
                 </form>
-
             </div>
         </div>
     </div>

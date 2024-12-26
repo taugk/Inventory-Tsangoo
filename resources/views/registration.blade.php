@@ -49,7 +49,7 @@
                                         <div class="form-group col-md-6">
                                             <label>Mobile</label>
                                             <input type="tel" class="form-control input-default" name="mobile"
-                                                id="mobile" placeholder="Mobile" pattern="[0-9]{10}" required>
+                                                id="mobile" placeholder="+6299999999" required>
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label>DOB</label>

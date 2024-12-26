@@ -43,7 +43,7 @@
                                     </div>
                                     <button class="btn login-form__btn submit float-right">Sign In</button>
                                 </form>
-                                <p class="mt-5 login-form__footer">Dont have account? <a href="{{url('registration')}}"
+                                <p class="mt-5 login-form__footer">Dont have account? <a href="{{url('emp_registration')}}"
                                         class="text-primary">Sign Up</a> now</p>
                             </div>
                         </div>

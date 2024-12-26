@@ -12,9 +12,30 @@
                     <i class="icon-globe-alt menu-icon"></i><span class="nav-text">Inventory</span>
                 </a>
                 <ul aria-expanded="false">
-                    <li><a href="{{url('add_item')}}">Add Item</a></li>
-                    <li><a href="{{url('list_item')}}">Item List</a></li>
-                    <li><a href="{{url('list_item_status')}}">Item Status</a></li>
+                    <!-- Submenu Stok -->
+                    <li class="submenu">
+                        <a href="javascript:void()" class="has-arrow" aria-expanded="false"><i class="icon-bag menu-icon"> </i> Stok</a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{url('list_item')}}">Daftar Stok</a></li>
+                            <li><a href="{{url('add_item')}}">Stok Masuk</a></li>
+                            <li><a href="{{url('barang_keluar')}}">Stok Keluar</a></li>
+                            <li><a href="{{url('stok_opname')}}">Stok Opname</a></li>
+                            <li><a href="{{url('stok_terbuang')}}">Stok Terbuang</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Submenu Pembelian Stok -->
+                    <li><a href="{{url('pembelian_stok')}}">Pembelian Stok</a></li>
+
+
+                    <!-- Submenu Produksi Stok -->
+                    <li><a href="{{url('produksi_stok')}}">Produksi Stok</a></li>
+
+
+
+                    <!-- Menu lainnya di Inventory -->
+                    <li><a href="{{url('add_item')}}">Tambah Item</a></li>
+                    <li><a href="{{url('category')}}">Kategori Item</a></li>
                 </ul>
             </li>
             <li class="nav-label">Apps</li>
@@ -58,7 +79,11 @@
                     <li><a href="{{url('download_pdf')}}">Stock PDF</a></li>
                 </ul>
             </li>
-            <li><a href="{{url('logout')}}"><i class="icon-key"></i> <span>Logout</span></a>
+            <li>
+                <a href="{{url('logout')}}" aria-expanded="false">
+                    <i class="icon-key"></i><span class="nav-text">Logout</span>
+                </a>
+            </li>
         </ul>
     </div>
 </div>

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+// use PDF;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use DB;
-use Carbon\Carbon;
-// use PDF;
-use Barryvdh\DomPDF\Facade\Pdf;
 
-class InventoryController extends Controller
+class InventoryController_without_log extends Controller
 {
     public function add_item()
     {
@@ -53,8 +53,16 @@ class InventoryController extends Controller
     public function list_item()
     {
         $list_item = DB::table('item')->get();
+
+        // Mengecek apakah data ada
+        if ($list_item->isEmpty()) {
+            return view('list_item', ['message' => 'No items found']);
+        }
+
         return view('list_item', compact('list_item'));
     }
+
+
 
     public function get_item(Request $request)
     {

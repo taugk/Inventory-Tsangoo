@@ -27,18 +27,149 @@
 <script src="{{asset('assets/plugins/tables/js/datatable-init/datatable-basic.min.js')}}"></script>
 <script src="{{asset('assets/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js')}}">
 </script>
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <script src="{{asset('assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js')}}"></script>
 {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 {{-- <script src="{{asset('assets/js/plugins-init/form-pickers-init.js')}}"></script> --}}
 {{-- <script src="./js/dashboard/dashboard-1.js"></script> --}}
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+<script>
+    // Fungsi untuk menyaring data berdasarkan input pencarian
+    function filterTable(searchValue) {
+        let tables = document.querySelectorAll('table'); // Ambil semua tabel
+        let noDataFound = true; // Flag untuk cek apakah data ditemukan
+
+        tables.forEach(function(table) {
+            let tableRows = table.getElementsByTagName('tr'); // Ambil semua row tabel
+            let noDataRow = document.getElementById('noDataRow'); // Ambil row pesan tidak ada data
+
+            Array.from(tableRows).forEach(function(row, index) {
+                if (index === 0) return; // Lewati baris header
+
+                let cells = row.getElementsByTagName('td');
+                let rowMatch = false;
+
+                // Loop untuk mengecek setiap cell dalam row
+                Array.from(cells).forEach(function(cell) {
+                    // Case-insensitive matching dengan pencarian berbasis kata
+                    if (cell.textContent.toLowerCase().includes(searchValue)) {
+                        rowMatch = true;
+                    }
+                });
+
+                // Menampilkan atau menyembunyikan row sesuai pencocokan
+                row.style.display = rowMatch ? '' : 'none';
+
+                // Jika ada row yang cocok, set noDataFound ke false
+                if (rowMatch) {
+                    noDataFound = false;
+                }
+            });
+
+            // Menampilkan atau menyembunyikan row pesan tidak ditemukan
+            if (noDataFound) {
+                if (!noDataRow) {
+                    // Jika row tidak ada, tambahkan row baru untuk pesan
+                    let noDataRow = document.createElement('tr');
+                    noDataRow.id = 'noDataRow';
+                    let cell = document.createElement('td');
+                    cell.colSpan = tableRows[0].cells.length; // Set agar pesan melintang di semua kolom
+                    cell.style.textAlign = 'center';
+                    cell.style.color = 'red';
+                    cell.textContent = 'Data tidak ditemukan.';
+                    noDataRow.appendChild(cell);
+                    table.querySelector('tbody').appendChild(noDataRow);
+                }
+            } else {
+                // Jika data ditemukan, sembunyikan row pesan
+                if (noDataRow) {
+                    noDataRow.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // Event listener untuk tombol search
+    document.getElementById('globalSearchButton').addEventListener('click', function() {
+        let searchValue = document.getElementById('globalSearchInput').value.trim().toLowerCase(); // Ambil nilai dari input
+        filterTable(searchValue); // Panggil fungsi filter untuk menyaring data
+    });
+
+    // Event listener untuk input form, jika kosong tampilkan semua data
+    document.getElementById('globalSearchInput').addEventListener('input', function() {
+        let searchValue = this.value.trim().toLowerCase(); // Ambil nilai dari input
+
+        if (searchValue === "") {
+            // Jika input kosong, tampilkan semua baris
+            filterTable("");
+        } else {
+            filterTable(searchValue); // Panggil fungsi filter untuk menyaring data
+        }
+    });
+</script>
+
+
+
+
+<script>
+    $(document).ready(function() {
+        $('#categoryTable').DataTable();
+
+        // Edit Button Click
+        $('.edit-btn').on('click', function() {
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+
+            // Set form action dynamically
+            $('#editCategoryForm').attr('action', `{{ url('edit_category') }}/${id}`);
+            $('#editCategoryName').val(name);
+
+            // Show the modal
+            $('#editCategoryModal').modal('show');
+        });
+
+        // Delete Confirmation
+        $('.delete-btn').on('click', function() {
+            const id = $(this).data('id');
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data ini akan dihapus!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#delete-form-' + id).submit();
+                }
+            });
+        });
+    });
+</script>
+
 <script>
   window.setTimeout(function() {
       $(".alert").fadeTo(500, 0).slideUp(500, function(){
-          $(this).remove(); 
+          $(this).remove();
       });
   }, 4000);
 </script>
+<script>
+    @if(session('success'))
+        toastr.success("{{ session('success') }}");
+    @elseif(session('error'))
+        toastr.error("{{ session('error') }}");
+    @endif
+</script>
+
 {{-- <script>
   $(document).ready(function() {
       // Initialize Select2

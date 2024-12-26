@@ -2,178 +2,213 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\cr;
+use App\Models\Logs;
+use App\Models\User;
+use App\Models\Supplier;
+use App\Models\Inventory;
+use App\Models\Transactions;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
-use Hash;
-use DB;
-use Session;
-use Illuminate\Support\Arr;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Symfony\Component\VarDumper\VarDumper;
 
 class UserController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        if (Session::has('session_id')) {
-            $sum_qty = DB::table('sale_item')
-                ->selectRaw('SUM(CAST("item_qty" AS numeric)) as total_qty')
-                ->value('total_qty');
-            $customer = DB::table('customer')
-                ->count();
-            $total_amount = DB::table('sale_item')
-                ->selectRaw('SUM(CAST("item_amount" AS numeric)) as total_amount')
-                ->value('total_amount');
-            $logs = DB::table('logs')->get();
-            $items = DB::table('item')->where('item_stock', '<', 10)->orderBy('item_stock', 'asc')->get();
-            return view('index', compact('sum_qty', 'total_amount', 'customer', 'logs', 'items'));
-        } else {
-            return view('login');
+        //Membuat session
+        if(session()->has('session_id')) {
+            $sum_qty = Inventory::selectRaw('SUM(quantity) as total_qty')
+            ->value('total_qty');
+
+            $supplier_count = Supplier::count();
+
+            $total_amount = Transactions::selectRaw('SUM(price*quantity) as total_amount')
+            ->value('total_amount');
+
+            $logs = Logs::get();
+
+            $low_stock_items = Inventory::where('quantity', '<', 10)
+            ->orderBy('quantity', 'asc')
+            ->get();
+
+            return view('index', compact('sum_qty', 'total_amount', 'supplier_count', 'logs', 'low_stock_items'));
         }
+        else {
+            "Gagal";
+        }
+
     }
-    public function login()
-    {
-        $data = DB::table('user_details')->select('*')->get();
-        if (count($data) > 0) {
-            return view('login');
-        } else {
+
+    public function login(){
+        $data = User::all();
+        if(count ($data)>0) {
+            return view('login', compact('data'));
+
+        }
+        else {
             return view('registration');
         }
     }
-    function logout()
-    {
-        if (Session::has('session_id')) {
-            Session::pull('session_id');
+
+    function logout(){
+        if(session()->has('session_id')) {
+            session()->pull('session_id');
             Session::flush();
             return redirect('login');
         }
-        return redirect('login');
     }
-
 
     public function login_post(Request $request)
     {
+
+        // Validate the incoming request data
         $request->validate([
             'email' => 'required',
-            'pwd' => 'required'
+            'pwd' => 'required',
         ]);
 
-        $user = DB::table('user_details')->where('email', '=', $request->email)->first();
-        if ($user) {
-            if (Hash::check($request->pwd, $user->pwd)) {
+
+
+
+
+        // Check if the user exists in the database
+        $user = User::where('email', $request->email)->first();
+
+        // If user exists, check if the password matches
+        if($user) {
+            if (Hash::check($request->pwd, $user->password)) {
+
+                $user_type = '';
+                if ($user->role == 'admin') {
+                    $user_type = 'admin';
+                } elseif ($user->role == 'staff') {
+                    $user_type = 'staff';
+                }
+
+                // Menyimpan session
                 $sess_array = [
                     'session_id' => $user->id,
-                    'session_name' => $user->fname,
+                    'session_name' => $user->name,
                     'session_email' => $user->email,
-                    'session_user_type' => $user->type,
+                    'session_user_type' => $user_type,  // Menyimpan tipe pengguna berdasarkan status
                     'loggedin' => 'UserLoggedIn'
                 ];
                 $request->session()->put($sess_array);
-                return redirect('index');
+
+                return redirect('index')->with('success', 'Login berhasil!');
             } else {
-                return back()->with('fail', 'Password not match!');
+                return back()->with('fail', 'Password salah!');
             }
         } else {
-            return back()->with('fail', 'This email is not register.');
+            return back()->with('fail', 'Email tidak ditemukan!');
         }
     }
-    public function registration()
-    {
-        return view('registration');
-    }
-    public function emp_registration()
-    {
 
+    public function emp_registration(){
         $user_type = Session::get('session_user_type');
-        if ($user_type == 'suadmin') {
-            return view('emp_registration');
-        } else {
-            return redirect(url('index'))->with("fail", "Only SuAdmin can do Employee Registration.");
+        if($user_type == 'admin'){
+            return view('registration');
+        }
+        else{
+            return redirect('index')->with("fail", "Hanya Admin yang dapat menambah karyawan");
         }
     }
-    public function emp_list()
-    {
+
+    public function emp_registration_post(Request $request){
+        $request->validate([
+            'name' => 'required',
+            'username' => 'required',
+            'password' => 'required',
+            'role' => 'required',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+    }
+
+    public function emp_list(){
         $user_type = Session::get('session_user_type');
-        if ($user_type == 'suadmin') {
-            $emp_list = DB::table('user_details')->where('type', 'admin')->get();
-            return view('emp_list', compact('emp_list'));//
-        } else {
-            return redirect(url('index'))->with("fail", "Only SuAdmin can view Employee Details.");
+        if($user_type == 'admin'){
+            $emp_list = User::all();
+            return view('emp_list', compact('emp_list'));
+        }
+        else{
+            return redirect('index')->with("fail", "Hanya Admin yang dapat melihat daftar karyawan");
         }
     }
-    public function registration_post(Request $request)
-    {
-        $request->validate([
-            'fname' => 'required',
-            'lname' => 'required',
-            'mobile' => 'required',
-            'dob' => 'required',
-            'email' => 'required',
-            'pwd' => 'required',
-            'address' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'pincode' => 'required'
-        ]);
 
-        $user = DB::table('user_details')->insert([
-            'fname' => $request->fname,
-            'lname' => $request->lname,
-            'mobile' => $request->mobile,
-            'dob' => $request->dob,
-            'email' => $request->email,
-            'pwd' => Hash::make($request->pwd),
-            'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-            'pincode' => $request->pincode,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-            'status' => 1
-        ]);
-
-        if (!$user) {
-            return redirect(url('registration'))->with("error", "Registration Failed,try again");
+    public function emp_edit($id){
+        $user_type = Session::get('session_user_type');
+        if($user_type == 'admin'){
+            $data = User::find($id);
+            return view('emp_edit', compact('data'));
         }
-        return redirect(url('login'))->with("success", "Registration success, Login to access the app");
+        else{
+            return redirect('index')->with("fail", "Hanya Admin yang dapat mengedit karyawan");
+        }
+    }
+
+    public function emp_edit_post(Request $request, $id){
+        $user_type = Session::get('session_user_type');
+        if($user_type == 'admin'){
+            $rules = [
+                'name' => 'required',
+                'username' => 'required',
+                'role' => 'required',
+            ];
+
+                $messages = [
+                    'name.required' => 'Nama harus diisi',
+                    'username.required' => 'Username harus diisi',
+                    'role.required' => 'Role harus diisi',
+                ];
+
+                $validated = $request->validate($rules, $messages);
+                $user = User::find($id);
+                if($user){
+                    $user ->update($validated);
+                    return redirect('emp_list')->with("success", "Data berhasil diubah");
+
+                }
+                else{
+                    return redirect('emp_list')->with("fail", "Data tidak ditemukan");
+                }
+        }
+        else{
+            return redirect('index')->with("fail", "Hanya Admin yang dapat mengedit karyawan");
+        }
 
     }
-    public function emp_registration_post(Request $request)
-    {
-        $request->validate([
-            'fname' => 'required',
-            'lname' => 'required',
-            'mobile' => 'required',
-            'dob' => 'required',
-            'email' => 'required',
-            'pwd' => 'required',
-            'address' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'pincode' => 'required',
-            'type' => 'required',
-        ]);
 
-        $user = DB::table('user_details')->insert([
-            'fname' => $request->fname,
-            'lname' => $request->lname,
-            'mobile' => $request->mobile,
-            'type' => $request->type,
-            'dob' => $request->dob,
-            'email' => $request->email,
-            'pwd' => Hash::make($request->pwd),
-            'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-            'pincode' => $request->pincode,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-            'status' => 1
-        ]);
-
-        if (!$user) {
-            return redirect(url('emp_registration'))->with("error", "Registration Failed,try again");
+    public function emp_delete($id){
+        $user_type = Session::get('session_user_type');
+        if($user_type == 'admin'){
+            $data = User::find($id);
+            $data->delete();
+            return redirect('emp_list')->with("success", "Data berhasil dihapus");
         }
-        return redirect(url('emp_registration'))->with("success", "Registration success, Login to access the app");
+        else{
+            return redirect('index')->with("fail", "Hanya Admin yang dapat menghapus karyawan");
+        }
+    }
 
+    public function detail($id){
+        $user_type = Session::get('session_user_type');
+        if($user_type == 'admin'){
+            $data = User::find($id);
+            return view('detail', compact('data'));
+        }
+        else{
+            return redirect('index')->with("fail", "Hanya Admin yang dapat melihat detail karyawan");
+        }
     }
 }

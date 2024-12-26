@@ -14,6 +14,21 @@ Route::get('/logout', [UserController::class, 'logout']);
 Route::get('/emp_registration', [UserController::class, 'emp_registration']);
 Route::post('/emp_registration', [UserController::class, 'emp_registration_post']);
 Route::get('/emp_list', [UserController::class, 'emp_list']);
+Route::get('/emp_edit/{id}', [UserController::class, 'emp_edit']);
+Route::put('/edit_emp/{id}', [UserController::class, 'emp_edit_post'])->name('edit_emp');
+Route::delete('/emp_delete/{id}', [UserController::class, 'emp_delete']);
+Route::get('/emp_detail/{id}', [UserController::class, 'emp_detail']);
+
+
+Route::get('/category', [CategoryController::class, 'category']);
+Route::get('/category_add', [CategoryController::class, 'category_add']);
+Route::post('/category', [CategoryController::class, 'category_post']);
+Route::get('/category_list', [CategoryController::class, 'category_list']);
+Route::get('/category_edit/{id}', [CategoryController::class, 'category_edit']);
+Route::put('/edit_category/{id}', [CategoryController::class, 'category_edit_post'])->name('edit_category');
+Route::delete('/category_delete/{id}', [CategoryController::class, 'category_delete']);
+
+
 
 Route::get('/add_item', [InventoryController::class, 'add_item']);
 Route::post('/add_item', [InventoryController::class, 'add_item_post']);
@@ -30,12 +45,7 @@ Route::post('/fetch_vendor_details', [PurchaseController::class, 'fetch_vendor_d
 Route::post('/fetch_item_details', [PurchaseController::class, 'fetch_item_details']);
 Route::get('/list_purchase', [PurchaseController::class, 'list_purchase']);
 
-Route::get('/add_vendor', [VendorController::class, 'add_vendor']);
-Route::post('/add_vendor', [VendorController::class, 'add_vendor_post']);
-Route::get('/list_vendor', [VendorController::class, 'list_vendor']);
-Route::post('/get_vendor', [VendorController::class, 'get_vendor']);
-Route::post('/edit_vendor', [VendorController::class, 'edit_vendor']);
-Route::post('/edit_vendor_post', [VendorController::class, 'edit_vendor_post']);
+
 
 Route::get('/add_customer', [CustomerController::class, 'add_customer']);
 Route::post('/add_customer', [CustomerController::class, 'add_customer_post']);
@@ -44,11 +54,6 @@ Route::post('/get_customer', [CustomerController::class, 'get_customer']);
 Route::post('/edit_customer', [CustomerController::class, 'edit_customer']);
 Route::post('/edit_customer_post', [CustomerController::class, 'edit_customer_post']);
 
-Route::get('/add_sale', [SaleController::class, 'add_sale']);
-Route::post('/add_sale', [SaleController::class, 'add_sale_post']);
-Route::post('/fetch_customer_details', [SaleController::class, 'fetch_customer_details']);
-// Route::post('/fetch_item_details', [InventoryController::class, 'fetch_item_details']);
-Route::get('/list_sale', [SaleController::class, 'list_sale']);
 
 Route::get('/export', [InventoryController::class, 'exportInventory']);
 Route::get('/import', [InventoryController::class, 'importInventory']);

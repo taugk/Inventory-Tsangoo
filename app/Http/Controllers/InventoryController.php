@@ -1,15 +1,16 @@
 <?php
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Log;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use DB;
-use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\Log;
-use Session;
 
 class InventoryController extends Controller
 {
@@ -19,9 +20,8 @@ class InventoryController extends Controller
         if ($user_type == 'admin') {
             return view('add_item');
         } else {
-            return redirect(url('index'))->with("fail", "Only Admin's can add Item");
+            return redirect(url('index'))->with("fail", "Hanya Admin yang dapat menambah item");
         }
-
     }
 
     public function add_item_post(Request $request)
@@ -81,9 +81,18 @@ class InventoryController extends Controller
 
     public function list_item()
     {
-        $list_item = DB::table('item')->where('item_status', 1)->get();
+        $list_item = Inventory::all();
+
+        // Mengecek apakah data ada
+        if ($list_item->isEmpty()) {
+            return view('list_item', ['message' => 'No items found']);
+        }
+
         return view('list_item', compact('list_item'));
     }
+
+
+
     public function list_item_status()
     {
         $list_item_status = DB::table('item')->get();

@@ -45,27 +45,30 @@
                             <input type="text" id="itemSearch" class="form-control" placeholder="Search Item...">
                         </div>
                         <hr>
-                        <div class="item-list activity " id="activity">
+                        <div class="item-list activity" id="activity">
                             <table id="itemTable" class="table table-bordered table-hover verticle-middle">
-
                                 <tbody>
                                     <tr>
                                         <th>Item</th>
                                         <th>Qty</th>
                                     </tr>
-                                    @if($list_item->count() > 0)
+                                    <!-- Cek apakah ada item yang tersedia -->
+                                    @if(isset($list_item) && $list_item->count() > 0)
                                     @foreach($list_item as $value)
-                                    <tr class="item-rowid" data-id="{{ $value->id }}"
-                                        data-name="{{ $value->item_name }}">
-                                        <td>
-                                            {{-- <a id="get_data">{{$value->item_name}}</a> --}}
-                                            <a href="#" id="item-link" data-id="{{ $value->id }}"
-                                                data-name="{{ $value->item_name }}">{{ $value->item_name
-                                                }}</a>
-                                        </td>
-                                        <td>{{ $value->item_stock}}</td>
-                                    </tr>
+                                        <tr class="item-rowid" data-id="{{ $value->id }}" data-name="{{ $value->item_name }}">
+                                            <td>
+                                                <a href="#" id="item-link" data-id="{{ $value->id }}" data-name="{{ $value->item_name }}">
+                                                    {{ $value->item_name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $value->item_stock }}</td>
+                                        </tr>
                                     @endforeach
+                                    @else
+                                    <tr>
+                                        <td colspan="2" class="text-center text-danger">No items found</td>
+                                    </tr>
+
                                     @endif
                                 </tbody>
                             </table>
@@ -74,22 +77,17 @@
                     <!-- Main Content -->
                     <div class="col-md-9 item-details">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4><span id="item_name_view">{{ $list_item[0]->item_name }}</span></h4>
+                            <h4><span id="item_name_view">{{ $list_item[0]->item_name ?? '' }}</span></h4>
                             <div id="data-item_id"></div>
                         </div>
                         <hr>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <p>Sale Price: <span class="text-success" id="item_sale_view">₹ {{
-                                        $list_item[0]->item_sale
-                                        }}</span></p>
-                                <p>Purchase Price: <span class="text-success" id="item_purchase_view">₹ {{
-                                        $list_item[0]->item_purchase }}</span>
-                                </p>
+                                <p>Sale Price: <span class="text-success" id="item_sale_view">₹ {{ $list_item[0]->item_sale ?? 0 }}</span></p>
+                                <p>Purchase Price: <span class="text-success" id="item_purchase_view">₹ {{ $list_item[0]->item_purchase ?? 0 }}</span></p>
                             </div>
                             <div class="col-md-6">
-                                <p>Stock Quantity:<span class="text-danger" id="item_stock_view"> {{
-                                        $list_item[0]->item_stock }}</span> </p>
+                                <p>Stock Quantity: <span class="text-danger" id="item_stock_view">{{ $list_item[0]->item_stock ?? 0 }}</span></p>
                                 <p>Stock Value: <span class="text-success" id="item_stockvalue_view">0</span></p>
                             </div>
                         </div>
@@ -98,7 +96,7 @@
                         <!-- Transactions Table -->
                         <h5>Transactions</h5>
 
-                        <div class="transaction-list ">
+                        <div class="transaction-list">
                             <table id="transactionsTable" class="table table-bordered verticle-middle">
                                 <thead>
                                     <tr>
@@ -109,18 +107,13 @@
                                         <th>Quantity</th>
                                         <th>Price/Unit</th>
                                         <th>Amount</th>
-                                        {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{--
-                                    <!-- Rows will be appended here by the script -->
-                                    <td><a href="/sale/${item.id}/edit" class="btn btn-warning btn-sm">Edit</a></td>
-                                    --}}
+                                    <!-- Data will be dynamically loaded here -->
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -143,23 +136,26 @@
 
 <script>
     $(document).ready(function() {
-    $('#itemSearch').on('keyup', function() {
-        var value = $(this).val().toLowerCase();
-        
-        $('#itemTable tbody tr').filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        // Search functionality
+        $('#itemSearch').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#itemTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
         });
     });
-});
+</script>
 
-</script>
 @include('layouts.js')
+
 <script>
+    // Slimscroll setup for activity sidebar
     $('.activity').slimscroll({
-    position: "right",
-    size: "5px",
-    height: "390px",
-    color: "transparent"
-});
+        position: "right",
+        size: "5px",
+        height: "390px",
+        color: "transparent"
+    });
 </script>
+
 @include('layouts.foot')

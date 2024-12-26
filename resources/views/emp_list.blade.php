@@ -25,18 +25,47 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Admin List</h4>
+                        <a href="{{ url('emp_registration') }}" class="btn btn-primary">Tambah</a>
+                        <script>
+                            @if (session('success'))
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: '{{ session('success') }}',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    timer: 5000
+                                });
+                            @endif
+
+                            @if (session('error'))
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: '{{ session('error') }}',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    timer: 5000
+                                });
+                            @endif
+                        </script>
+
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered zero-configuration">
+                            <div class="form-group col-md-4 float-right d-flex">
+                                <input type="text" class="form-control" id="globalSearchInput" placeholder="Cari Kategori...">
+                                <button type="button" class="btn btn-primary ml-2" id="globalSearchButton">
+                                    <i class="fas fa-search"></i> Cari
+                                </button>
+                            </div>
+
+                            <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Position</th>
-                                        <th>DOB</th>
-                                        <th>Mobile</th>
-                                        <th>Addrress</th>
-                                        <th>Start date</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
+                                        <th>Nama</th>
+                                        <th>Posisi</th>
+                                        <th>Tanggal Dibuat</th>
+
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -44,25 +73,42 @@
                                     @foreach($emp_list as $value)
                                     <tr>
                                         {{-- <td>{{$value->user_type}}</td> --}}
-                                        <td>{{$value->fname}} {{$value->lname}}</td>
-                                        <td>{{$value->type}}</td>
-                                        <td>{{$value->dob}}</td>
-                                        <td>{{$value->mobile}}</td>
-                                        <td>{{$value->address}},{{$value->city}},{{$value->state}},{{$value->pincode}}
+                                        <td>{{$value->name}}</td>
+                                        <td>
+                                            {{ $value->role }}
                                         </td>
+
                                         <td>{{$value->created_at}}</td>
-                                        <td>{{$value->status}}</td>
-                                        <td>{{$value->created_at}}</td>
+
+                                        <td>
+
+                                            <form action="{{ url('emp_delete', $value->id) }}" method="POST" id="delete-form-{{ $value->id }}" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-danger delete-btn" id="delete" data-id="{{ $value->id }}"><i class="far fa-trash-alt"></i></button>
+                                            </form>
+
+
+
+                                            <a href="{{ url('emp_edit', $value->id) }}" class="btn btn-warning"><i class="far fa-edit"></i></a>
+
+                                            <a href="{{ url('emp_detail', $value->id) }}" class="btn btn-info"><i class="far fa-eye"></i></a>
+                                        </td>
                                     </tr>
+
                                     @endforeach
                                     @else
                                     <tr>
                                         <td colspan="8">No Records Found</td>
                                     </tr>
                                     @endif
-                                </tbody>
 
+                                    <tr id="noDataRow" style="display:none;">
+                                        <td colspan="2" style="text-align:center; color: red;">Data tidak ditemukan.</td>
+                                    </tr>
+                                </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>

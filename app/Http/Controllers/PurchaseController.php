@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use DB;
 use Carbon\Carbon;
-use Session;
 use App\Models\Log;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+
 class PurchaseController extends Controller
 {
     public function add_purchase()

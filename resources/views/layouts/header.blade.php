@@ -8,3 +8,4 @@
     <title>Inventory Management System</title>
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{{asset('assets/images/favicon.png')}}">
+    <script src="sweetalert2.min.js"></script>
