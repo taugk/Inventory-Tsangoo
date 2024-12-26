@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Inventory Management System
 
 Overview
@@ -67,3 +68,6 @@ Contributions are welcome! Please fork this repository, create a new branch, and
 
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
+=======
+# Inventory-Tsangoo
+>>>>>>> 306e2da088f49f6a4a2578d1bec09999b92c550b
