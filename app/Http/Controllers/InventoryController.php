@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Log;
+use App\Models\Category;
+use App\Models\Supplier;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -14,14 +16,18 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class InventoryController extends Controller
 {
+    public function list_item()
+    {
+        $items = Inventory::with('categories')->get();
+        return view('list_item', compact('items'));
+    }
+
     public function add_item()
     {
-        $user_type = Session::get('session_user_type');
-        if ($user_type == 'admin') {
-            return view('add_item');
-        } else {
-            return redirect(url('index'))->with("fail", "Hanya Admin yang dapat menambah item");
-        }
+        $items = Category::all();
+        $suppliers = Supplier::all();
+
+        return view('add_item', compact('items', 'suppliers'));
     }
 
     public function add_item_post(Request $request)
@@ -79,17 +85,7 @@ class InventoryController extends Controller
         }
     }
 
-    public function list_item()
-    {
-        $list_item = Inventory::all();
 
-        // Mengecek apakah data ada
-        if ($list_item->isEmpty()) {
-            return view('list_item', ['message' => 'No items found']);
-        }
-
-        return view('list_item', compact('list_item'));
-    }
 
 
 
