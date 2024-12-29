@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Supplier;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Inventory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -210,62 +211,42 @@ public function list_item_out(Request $request, $sort = 'default')
 }
 
 
+private function generateReport($viewName, $filePrefix, $dataQuery, $type) {
+    $startDate = date('Y-m-d', strtotime('-7 days'));
+    $endDate = date('Y-m-d');
 
+    try {
+        // Jalankan query untuk mengambil data
+        $data = $dataQuery->get();
 
+        // Hitung total quantity
+        $totalQuantity = $data->sum('quantity');
 
+        // Buat laporan PDF
+        $pdf = PDF::LoadView($viewName, compact('data', 'startDate', 'endDate', 'totalQuantity', 'type'));
 
-
-
-    /**
-     * Menangani Barang Keluar
-     */
-
-
-    /**
-     * Menangani Stok Opname
-     */
-    public function stokOpname(Request $request)
-    {
-        $request->validate([
-            'sku' => 'required|exists:inventory,sku',
-            'actual_quantity' => 'required|integer|min:0',
-        ]);
-
-        DB::transaction(function () use ($request) {
-            $inventory = Inventory::where('sku', $request->sku)->firstOrFail();
-
-            // Catat selisih stok
-            $difference = $request->actual_quantity - $inventory->quantity;
-
-            // Update stok barang
-            $inventory->quantity = $request->actual_quantity;
-            $inventory->save();
-
-            // Simpan riwayat stok opname
-            DB::table('inventory_logs')->insert([
-                'inventory_id' => $inventory->id,
-                'type' => 'opname',
-                'quantity' => $difference,
-                'user_id' => Auth::id(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        });
-
-        return redirect()->back()->with('success', 'Stok opname berhasil dilakukan.');
+        // Unduh laporan PDF dengan nama file yang unik
+        $filename = $filePrefix . '_' . date('Ymd_His') . '.pdf';
+        return $pdf->download($filename);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Terjadi kesalahan saat memproses laporan: ' . $e->getMessage()], 500);
     }
+}
 
-    /**
-     * Menampilkan Riwayat Transaksi Barang
-     */
-    public function riwayatTransaksi()
-    {
-        $logs = DB::table('inventory_logs')
-            ->join('inventory', 'inventory_logs.inventory_id', '=', 'inventory.id')
-            ->select('inventory_logs.*', 'inventory.sku', 'inventory.name')
-            ->orderBy('inventory_logs.created_at', 'desc')
-            ->paginate(10);
+public function reportinventory_In() {
+    $dataQuery = Inventory::whereBetween('entry_date', [now()->subDays(7), now()]);
+    return $this->generateReport('layouts.reportinventory', 'reportinventory_in', $dataQuery, 'Barang Masuk');
+}
 
-        return view('inventory.riwayat', compact('logs'));
-    }
+public function reportinventory_Out() {
+    $dataQuery = InventoryOuts::whereBetween('date_out', [now()->subDays(7), now()]);
+    return $this->generateReport('layouts.reportinventory', 'reportinventory_out', $dataQuery, 'Barang Keluar');
+}
+
+
+
+
+
+
+
 }

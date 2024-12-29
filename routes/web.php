@@ -43,6 +43,9 @@ Route::post('/get_item', [InventoryController::class, 'get_item']);
 Route::post('/edit_item', [InventoryController::class, 'edit_item']);
 Route::post('/edit_item_post', [InventoryController::class, 'edit_item_post']);
 Route::delete('/inventory_delete/{id}', [InventoryController::class, 'delete_item']);
+Route::get('/export_inventory_in', [InventoryController::class, 'reportinventory_In']);
+Route::get('/export_inventory_out', [InventoryController::class, 'reportinventory_Out']);
+
 
 Route::get('/add_purchase', [PurchaseController::class, 'add_purchase']);
 Route::post('/add_purchase', [PurchaseController::class, 'add_purchase_post']);

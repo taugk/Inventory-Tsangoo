@@ -30,10 +30,10 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="card gradient-1">
                     <div class="card-body">
-                        <h3 class="card-title text-white">Products Sold</h3>
+                        <h3 class="card-title text-white">Item In</h3>
                         <div class="d-inline-block">
-                            <h2 class="text-white">{{$sum_qty}}</h2>
-                            <p class="text-white mb-0">Aug 2024</p>
+                            <h2 class="text-white">{{$total_stock_in}}</h2>
+                            <p class="text-white mb-0">{{ date('M Y') }}</p>
                         </div>
                         <span class="float-right display-5 opacity-5"><i class="fa fa-shopping-cart"></i></span>
                     </div>
@@ -42,10 +42,10 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="card gradient-2">
                     <div class="card-body">
-                        <h3 class="card-title text-white">Net Sale</h3>
+                        <h3 class="card-title text-white">Item Out</h3>
                         <div class="d-inline-block">
-                            <h2 class="text-white">₹ {{$total_amount}}</h2>
-                            <p class="text-white mb-0">Aug 2024</p>
+                            <h2 class="text-white">₹ {{$total_stock_out}}</h2>
+                            <p class="text-white mb-0">{{ date('M Y')  }}</p>
                         </div>
                         <span class="float-right display-5 opacity-5"><i class="fa fa-inr"></i></span>
                     </div>
@@ -66,10 +66,10 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="card gradient-4">
                     <div class="card-body">
-                        <h3 class="card-title text-white">Customer Satisfaction</h3>
+                        <h3 class="card-title text-white">Supplier In</h3>
                         <div class="d-inline-block">
-                            <h2 class="text-white">99%</h2>
-                            <p class="text-white mb-0">Aug 2024</p>
+                            <h2 class="text-white">{{ $total_supplier }}</h2>
+                            <p class="text-white mb-0">{{ date('M Y') }}</p>
                         </div>
                         <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                     </div>

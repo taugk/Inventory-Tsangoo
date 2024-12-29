@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Inventory;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
+use App\Models\InventoryOuts;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Session;
@@ -21,27 +22,43 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        if(session()->has('session_id')) {
-            $sum_qty = Inventory::selectRaw('SUM(quantity) as total_qty')
+{
+    if (session()->has('session_id')) {
+        // Total quantity of stock
+        $sum_qty = Inventory::selectRaw('SUM(quantity) as total_qty')
             ->value('total_qty');
 
-            $supplier_count = Supplier::count();
+        // Count of suppliers
+        $supplier_count = Supplier::count();
 
-            $total_amount = Transactions::selectRaw('SUM(price*quantity) as total_amount')
+        // Total amount (price * quantity) of transactions
+        $total_amount = Transactions::selectRaw('SUM(price*quantity) as total_amount')
             ->value('total_amount');
 
-            $logs = Log::get();
+        // Logs
+        $logs = Log::get();
 
-            $low_stock_items = Inventory::where('quantity', '<', 10)
+        // Low stock items (less than 10 quantity)
+        $low_stock_items = Inventory::where('quantity', '<', 10)
             ->orderBy('quantity', 'asc')
             ->get();
 
-            return view('index', compact('sum_qty', 'supplier_count', 'total_amount', 'logs', 'low_stock_items'));
-        }
-        return redirect('login');
+        // Calculate total Barang Masuk (Stock In)
+        $total_stock_in = Inventory::where('entry_date', '>=', now()->subDays(7))  // for the last 7 days
+            ->sum('quantity');
 
+        // Calculate total Barang Keluar (Stock Out)
+        $total_stock_out = InventoryOuts::where('date_out', '>=', now()->subDays(7))  // for the last 7 days
+            ->sum('quantity');
+
+        // Total supplier
+        $total_supplier = Supplier::count();
+
+        return view('index', compact('sum_qty', 'supplier_count', 'total_supplier','total_amount', 'logs', 'low_stock_items', 'total_stock_in', 'total_stock_out'));
     }
+    return redirect('login');
+}
+
 
     public function login(){
         $data = User::all();
@@ -81,6 +98,8 @@ class UserController extends Controller
                     $user_type = 'admin';
                 } elseif ($user->role == 'staff') {
                     $user_type = 'staff';
+                }elseif ($user->role == 'owner') {
+                    $user_type = 'owner';
                 }
 
                 // Menyimpan session
@@ -123,7 +142,7 @@ class UserController extends Controller
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:6',
-                'phone' => 'required|regex:/^(\+62|62|0)[8][1-9][0-9]{6,11}$/',
+                'phone' => 'required',
                 'address' => 'required',
                 'city' => 'required',
                 'state' => 'required',

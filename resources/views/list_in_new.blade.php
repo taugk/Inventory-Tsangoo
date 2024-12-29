@@ -26,7 +26,7 @@
                     <div class="card-body">
                         <h4 class="card-title">Daftar Barang</h4>
                         <div class="d-flex justify-content-between mb-3">
-                            <a href="{{ url('emp_registration') }}" class="btn btn-primary">Tambah</a>
+                            <a href="{{ url('add_item') }}" class="btn btn-primary">Tambah</a>
                             <div class="d-flex md-3 float-left">
                                 <!-- Tombol Import -->
                                 <button class="btn btn-success mr-2" id="importButton">
@@ -40,7 +40,7 @@
                                 </form>
 
                                 <!-- Tombol Export -->
-                                <a href="{{ url('emp_export') }}" class="btn btn-info">
+                                <a href="{{ url('export_inventory_in') }}" class="btn btn-info">
                                     <i class="fa fa-download"></i> Export
                                 </a>
                             </div>

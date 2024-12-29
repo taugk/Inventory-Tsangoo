@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('image')->nullable();
-            $table->enum('role', ['admin', 'staff'])->default('staff');
+            $table->enum('role', ['admin', 'staff', 'owner'])->default('staff');
             $table->rememberToken(); // Menambahkan kolom remember_token
             $table->timestamps();
         });

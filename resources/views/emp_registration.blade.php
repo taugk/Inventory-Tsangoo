@@ -53,6 +53,7 @@
                                 <option value="">Pilih Poisi</option>
                                 <option value="admin">Admin</option>
                                 <option value="staff">Staff</option>
+                                <option value="owner">Owner</option>
                             </select>
                             @error('role')
                                     <span class="text-danger" role="alert">{{ $message }}</span>

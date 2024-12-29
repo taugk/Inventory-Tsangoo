@@ -1,6 +1,6 @@
 <div class="footer">
     <div class="copyright">
-        <p>Copyright &copy; Developed by <a href="#">Inventory Management System</a> 2024</p>
+        <p>Copyright &copy; Developed by Inventory Management System Tsangoo {{ date('Y') }}</p>
     </div>
 </div>
 

@@ -26,7 +26,7 @@
                     <div class="card-body">
                         <h4 class="card-title">Daftar Barang</h4>
                         <div class="d-flex justify-content-between mb-3">
-                            <a href="{{ url('emp_registration') }}" class="btn btn-primary">Tambah</a>
+                            <a href="{{ url('add_item') }}" class="btn btn-primary">Tambah</a>
                             <div class="d-flex md-3 float-left">
                                 <!-- Tombol Import -->
                                 <button class="btn btn-success mr-2" id="importButton">
@@ -34,7 +34,7 @@
                                 </button>
 
                                 <!-- Input File (disembunyikan) -->
-                                <form id="importForm" action="{{ url('emp_import_excel') }}" method="POST" enctype="multipart/form-data" style="display: none;">
+                                <form id="importForm" action="{{ url('export_inventory') }}" method="POST" enctype="multipart/form-data" style="display: none;">
                                     @csrf
                                     <input type="file" name="excel_file" id="excelInput" accept=".csv,.xls,.xlsx">
                                 </form>

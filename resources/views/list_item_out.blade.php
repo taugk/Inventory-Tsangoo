@@ -40,7 +40,7 @@
                                 </form>
 
                                 <!-- Tombol Export -->
-                                <a href="{{ url('inventory_out_export') }}" class="btn btn-info">
+                                <a href="{{ url('export_inventory_out') }}" class="btn btn-info">
                                     <i class="fa fa-download"></i> Export
                                 </a>
                             </div>
@@ -110,7 +110,7 @@
                                             <td><img src="{{ $inventoryOut->inventory->image }}" alt="Image" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" loading="lazy"></td>
                                             <td>{{ $inventoryOut->inventory->category ? $inventoryOut->inventory->category->name : 'Tidak Ada Kategori' }}</td>
                                             <td>{{ $inventoryOut->quantity }}</td>
-                                            <td>Rp{{ number_format($inventoryOut->inventory->price, 2, ',', '.') }}</td>
+
                                             <td>{{ $inventoryOut->date_out ? $inventoryOut->date_out->format('Y-m-d') : 'Tidak Ada Tanggal Keluar' }}</td>
                                             <td>{{ $inventoryOut->supplier->name }}</td>
                                             <td>
