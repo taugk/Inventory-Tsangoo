@@ -25,7 +25,7 @@
                 <h4 class="card-title">Tambah Karyawan</h4>
                 <hr>
                 <form class="form-group" name="emp_registration" id="emp_registration"
-                    action="{{url('emp_registration')}}" method="POST">
+                    action="{{url('emp_registration')}}" method="POST" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     {{ csrf_field() }}
                     @if (Session::has('success'))
@@ -39,44 +39,70 @@
                     </div>
                     @endif
                     <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label>Posisi</label>
-                            <select class="form-control" id="type" name="type" required>
-                                <option value="">Pilih Poisi</option>
-                                <option value="2">Admin</option>
-                                <option value="3">User</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-8">
                             <label>Nama Lengkap</label>
-                            <input type="text" class="form-control input-default" name="lname" id="lname"
+                            <input type="text" class="form-control input-default" name="name" id="name"
                                 placeholder="Nama Lengkap" required>
+                                @error('name')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-8">
+                            <label>Posisi</label>
+                            <select class="form-control" id="role" name="role" required>
+                                <option value="">Pilih Poisi</option>
+                                <option value="admin">Admin</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                            @error('role')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
+                        </div>
+                        <div class="form-group col-md-8">
                             <label>Nomor Handphone</label>
-                            <input type="tel" class="form-control input-default" name="mobile" id="mobile"
-                                placeholder="+628-1234-1234" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label>Tanggal Lahir</label>
-                            <input type="date" class="form-control input-default" name="dob" id="dob" placeholder="Tanggal Lahir"
+                            <input
+                                type="tel"
+                                class="form-control input-default @error('phone') is-invalid @enderror"
+                                name="phone"
+                                id="phone"
+                                placeholder="Masukkan Nomor Handphone"
+                                pattern="^(\+62|62|0)[8][1-9][0-9]{6,11}$"
+                                title="Nomor handphone harus dimulai dengan +62, 62, atau 0, diikuti oleh 8 dan 7-12 digit angka lainnya."
                                 required>
+                            @error('phone')
+                                <span class="text-danger" role="alert">{{ $message }}</span>
+                            @enderror
                         </div>
+
                     </div>
+
+
                     <div class="form-row">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-8">
                             <label>Email</label>
                             <input type="email" class="form-control input-default" name="email" id="email"
                                 placeholder="Email" required>
+                                @error('email')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-8">
                             <label>Password</label>
-                            <input type="password" class="form-control input-default" name="pwd" id="pwd"
+                            <input type="password" class="form-control input-default" name="password" id="password"
                                 placeholder="Password" required>
+                                @error('password')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label>Foto</label>
+                            <input type="file" class="form-control input-default" name="image" id="image" placeholder="Foto" required>
+                            @error('image')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
                         </div>
                     </div>
                     <div class="form-row">
@@ -84,23 +110,28 @@
                             <label>Alamat</label>
                             <input type="text" class="form-control input-default" name="address" id="address"
                                 placeholder="Alamat Lengkap" required>
+                                @error('address')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-8">
                             <label>Kota</label>
                             <input type="text" class="form-control input-default" name="city" id="city"
                                 placeholder="Kota" required>
+                                @error('city')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-8">
+
                             <label>Provinsi</label>
                             <input type="text" class="form-control input-default" name="state" id="state"
                                 placeholder="Provinsi" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label>Kode Pos</label>
-                            <input type="number" class="form-control input-default" name="pincode" id="pincode"
-                                placeholder="Kode Pos" pattern="[0-9]{6}" maxlength="6" required>
+                                @error('state')
+                                    <span class="text-danger" role="alert">{{ $message }}</span>
+                                @enderror
                         </div>
                     </div>
                     <button type="submit" class="btn btn-dark float-right">Simpan</button>

@@ -14,11 +14,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'address',
+        'city',
+        'state',
+        'image',
         'role',
     ];
 
     protected $hidden = [
-        'password',
+
         'remember_token',
     ];
 
@@ -31,4 +36,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Purchase::class);
     }
+
+    public function invetoryOuts()
+    {
+        return $this->hasMany(InventoryOuts::class);
+    }
+
+
+
+
 }

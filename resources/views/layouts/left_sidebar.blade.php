@@ -17,8 +17,8 @@
                         <a href="javascript:void()" class="has-arrow" aria-expanded="false"><i class="icon-bag menu-icon"> </i> Stok</a>
                         <ul aria-expanded="false">
                             <li><a href="{{url('list_item')}}">Daftar Stok</a></li>
-                            <li><a href="{{url('add_item')}}">Stok Masuk</a></li>
-                            <li><a href="{{url('barang_keluar')}}">Stok Keluar</a></li>
+                            <li><a href="{{url('list_stock_in')}}">Stok Masuk</a></li>
+                            <li><a href="{{url('list_item_out')}}">Stok Keluar</a></li>
                             <li><a href="{{url('stok_opname')}}">Stok Opname</a></li>
                             <li><a href="{{url('stok_terbuang')}}">Stok Terbuang</a></li>
                         </ul>

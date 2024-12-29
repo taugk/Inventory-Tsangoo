@@ -13,14 +13,18 @@ return new class extends Migration
     {
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
+            $table->string('sku')->unique();
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('quantity')->default(0);
             $table->decimal('price', 15, 2)->default(0.00);
             $table->string('image')->nullable();
+            $table->date('entry_date');
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->onDelete('set null');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->date('expiry_date')->nullable();
+            $table->date('expiry_date');
             $table->timestamps();
         });
     }

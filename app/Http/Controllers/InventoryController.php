@@ -1,299 +1,271 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\Log;
 use App\Models\Category;
 use App\Models\Supplier;
 use App\Models\Inventory;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\InventoryOuts;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Facades\Session;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 
 class InventoryController extends Controller
 {
-    public function list_item()
-    {
-        $items = Inventory::with('categories')->get();
-        return view('list_item', compact('items'));
-    }
-
-    public function add_item()
-    {
-        $items = Category::all();
-        $suppliers = Supplier::all();
-
-        return view('add_item', compact('items', 'suppliers'));
-    }
-
-    public function add_item_post(Request $request)
-    {
-        $request->validate([
-            'item_name' => 'required',
-            'item_hsn' => 'required',
-            'item_unit' => 'required',
-            'item_desc' => 'required',
-            'item_mrp' => 'required',
-            'item_purchase' => 'required',
-            'item_sale' => 'required'
-        ]);
-
-        try {
-            DB::table('item')->insert([
-                'item_name' => $request->item_name,
-                'item_hsn' => $request->item_hsn,
-                'item_unit' => $request->item_unit,
-                'item_desc' => $request->item_desc,
-                'item_mrp' => $request->item_mrp,
-                'item_purchase' => $request->item_purchase,
-                'item_sale' => $request->item_sale,
-                'item_stock' => 0,
-                'item_created_at' => Carbon::now(),
-                'item_updated_at' => Carbon::now(),
-                'item_status' => 1
-            ]);
-
-            // Log the item addition
-            Log::create([
-                'level' => 'info',
-                'message' => 'Item added to inventory',
-                'context' => [
-                    'item_name' => $request->item_name,
-                    'user_type' => Session::get('session_user_type'),
-                    'user_name' => Session::get('session_name'),
-                ],
-            ]);
-
-            return redirect(url('list_item'))->with("success", "Item added successfully");
-        } catch (\Exception $e) {
-            // Log the failure
-            Log::create([
-                'level' => 'error',
-                'message' => 'Failed to add item to inventory',
-                'context' => [
-                    'error_message' => $e->getMessage(),
-                    'user_type' => Session::get('session_user_type'),
-                    'user_name' => Session::get('session_name'),
-                ],
-            ]);
-
-            return redirect(url('add_item'))->with("error", "Item adding Failed, try again");
-        }
-    }
-
-
-
-
-
-    public function list_item_status()
-    {
-        $list_item_status = DB::table('item')->get();
-        return view('list_item_status', compact('list_item_status'));
-    }
-    public function list_item_status_change($id, $item_status)
-    {
-        if ($item_status == 1) {
-            DB::table('item')->where('id', $id)->update(['item_status' => 0, 'item_updated_at' => Carbon::now()]);
-            return redirect()->back();
-        } elseif ($item_status == 0) {
-            DB::table('item')->where('id', $id)->update(['item_status' => 1, 'item_updated_at' => Carbon::now()]);
-            return redirect()->back();
-        } else {
-            DB::table('item')->where('id', $id)->update(['item_status' => 0, 'item_updated_at' => Carbon::now()]);
-            return redirect()->back();
-        }
-    }
-
-    public function get_item(Request $request)
-    {
-        $item['item'] = DB::table('item')
-            ->where("id", $request->id)
-            ->get()
-            ->first();
-        $purchase_item['item'] = DB::table('purchase_item')
-            ->where("item_id", $request->id)
-            ->get();
-        $sale_item['item'] = DB::table('sale_item')
-            ->where("item_id", $request->id)
-            ->get();
-        return response()->json([
-            'item' => $item,
-            'purchase_item' => $purchase_item,
-            'sale_item' => $sale_item
-        ]);
-    }
-
-    public function edit_item(Request $request)
-    {
-        $get_item_ajax['item'] = DB::table('item')
-            ->where("id", $request->id)
-            ->get()
-            ->first();
-        return response()->json($get_item_ajax);
-    }
-
-    public function edit_item_post(Request $request)
-    {
-        $request->validate([
-            'item_name' => 'required',
-            'item_hsn' => 'required',
-            'item_unit' => 'required',
-            'item_desc' => 'required',
-            'item_mrp' => 'required',
-            'item_purchase' => 'required',
-            'item_sale' => 'required'
-        ]);
-
-        try {
-            DB::table('item')->where('id', $request->item_id)
-                ->update([
-                    'item_name' => $request->item_name,
-                    'item_hsn' => $request->item_hsn,
-                    'item_unit' => $request->item_unit,
-                    'item_desc' => $request->item_desc,
-                    'item_mrp' => $request->item_mrp,
-                    'item_purchase' => $request->item_purchase,
-                    'item_sale' => $request->item_sale,
-                    'item_stock' => $request->item_stock,
-                    'item_updated_at' => Carbon::now()
-                ]);
-
-            // Log the item update
-            Log::create([
-                'level' => 'info',
-                'message' => 'Item updated in inventory',
-                'context' => [
-                    'item_id' => $request->item_id,
-                    'item_name' => $request->item_name,
-                    'user_type' => Session::get('session_user_type'),
-                    'user_name' => Session::get('session_name'),
-                ],
-            ]);
-
-            return redirect(url('list_item'))->with("success", "Item updated successfully");
-        } catch (\Exception $e) {
-            // Log the failure
-            Log::create([
-                'level' => 'error',
-                'message' => 'Failed to update item in inventory',
-                'context' => [
-                    'error_message' => $e->getMessage(),
-                    'user_type' => Session::get('session_user_type'),
-                    'user_name' => Session::get('session_name'),
-                ],
-            ]);
-
-            return redirect(url('list_item'))->with("error", "Item updating Failed, try again");
-        }
-    }
-
-    public function exportInventory()
+    public function list_barang(Request $request, $sort = 'default')
     {
         $user_type = Session::get('session_user_type');
-        if ($user_type == 'suadmin') {
 
-            $spreadsheet = new Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
+        // Periksa apakah user adalah admin atau staff
+        if ($user_type === 'admin' || $user_type === 'staff') {
+            // Inisialisasi query untuk mengambil data Inventory
+            $data = Inventory::query();
 
-            // Add header row
-            $sheet->setCellValue('A1', 'ID');
-            $sheet->setCellValue('B1', 'Item Name');
-            $sheet->setCellValue('C1', 'Stock');
-            $sheet->setCellValue('D1', 'HSN');
-            $sheet->setCellValue('E1', 'MRP');
-            $sheet->setCellValue('F1', 'PURCHASE');
-            $sheet->setCellValue('G1', 'SALE');
-            $sheet->setCellValue('H1', 'DESC');
-            $sheet->setCellValue('I1', 'UNIT');
+            // Filter berdasarkan tanggal jika ada input date_range
+            if ($request->filled('date_range')) {
+                try {
+                    $date_range = explode(' - ', $request->date_range);
 
-            // Fetch data from the database
-            $inventory = DB::table('item')->get();
-            $row = 2;
+                    // Validasi dan parsing tanggal dengan menggunakan Carbon
+                    $start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $date_range[0])->startOfDay();
+                    $end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $date_range[1])->endOfDay();
 
-            foreach ($inventory as $item) {
-                $sheet->setCellValue('A' . $row, $item->id);
-                $sheet->setCellValue('B' . $row, $item->item_name);
-                $sheet->setCellValue('C' . $row, $item->item_stock);
-                $sheet->setCellValue('D' . $row, $item->item_hsn);
-                $sheet->setCellValue('E' . $row, $item->item_mrp);
-                $sheet->setCellValue('F' . $row, $item->item_purchase);
-                $sheet->setCellValue('G' . $row, $item->item_sale);
-                $sheet->setCellValue('H' . $row, $item->item_desc);
-                $sheet->setCellValue('I' . $row, $item->item_unit);
-                $row++;
+                    // Filter data berdasarkan rentang tanggal yang diberikan
+                    $data->whereBetween('created_at', [$start_date, $end_date]);
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('error', 'Format rentang tanggal tidak valid.');
+                }
             }
 
-            $writer = new Xlsx($spreadsheet);
-            $fileName = 'item.xlsx';
+            // Mengatur urutan data berdasarkan parameter
+            if ($sort == 'desc') {
+                // Urutkan berdasarkan tanggal terbaru (created_at descending)
+                $data = $data->orderByDesc('created_at');
+            }
 
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="' . $fileName . '"');
-            header('Cache-Control: max-age=0');
+            // Ambil data dengan pagination setelah semua filter diterapkan
+            $items = $data->paginate(10)->appends($request->query());
 
-            $writer->save('php://output');
-            exit;
-        } else {
-            return redirect(url('index'))->with("fail", "Only Admin's can Export Item");
+            // Return view dengan data barang
+            if ($sort == 'desc') {
+                return view('list_in_new', compact('items'));
+            } else {
+                return view('list_item', compact('items'));
+            }
         }
+
+        // Redirect jika bukan admin atau staff
+        return redirect('index')->with("fail", "Hanya Admin yang dapat melihat daftar barang.");
     }
 
-    public function importInventory()
-    {
-        return view('import');
+
+    public function add_item(){
+        $user_type = Session::get('session_user_type');
+        if ($user_type == 'admin') {
+            $items = Category::all();
+            $suppliers = Supplier::all();
+            return view('add_item', compact('items', 'suppliers'));
+        }
+        return redirect('index')->with("fail", "Hanya Admin yang dapat menambahkan barang.");
     }
 
-    public function importInventoryPost(Request $request)
-    {
-        $file = $request->file('excel_file');
-        $spreadsheet = IOFactory::load($file->getRealPath());
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
 
-        foreach ($rows as $index => $row) {
-            if ($index === 0) {
-                continue; // Skip header row
-            }
+    public function add_item_post(Request $request)
+{
+    $user_type = Session::get('session_user_type');
 
-            DB::table('item')->insert([
-                'item_name' => $row[1],
-                'item_stock' => $row[2],
-                'item_hsn' => $row[3],
-                'item_mrp' => $row[4],
-                'item_purchase' => $row[5],
-                'item_sale' => $row[6],
-                'item_desc' => $row[7],
-                'item_unit' => $row[8],
-                'item_created_at' => Carbon::now(),
-                'item_updated_at' => Carbon::now(),
-                'item_status' => 1
+    if ($user_type == 'admin') {
+        try {
+            // Validasi input
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'category_id' => 'required|exists:categories,id',
+                'supplier_name' => 'required|string|max:255',  // Nama supplier
+                'supplier_id' => 'nullable|exists:suppliers,id',  // ID supplier
+                'quantity' => 'required|numeric|min:1',
+                'unit' => 'required|string',
+                'description' => 'nullable|string|max:500',
+                'expiry_date' => 'required|date_format:Y-m-d',
+                'entry_date' => 'required|date_format:Y-m-d',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'purchase_price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/',
             ]);
+
+
+            // Cari supplier berdasarkan supplier_name
+            $supplier = Supplier::where('name', $validated['supplier_name'])->first();
+
+            // Jika supplier tidak ditemukan, kita buat supplier baru
+            if (!$supplier) {
+                $supplier = Supplier::create([
+                    'name' => $validated['supplier_name'],
+                    'contact' => null,
+                    'address' => null,
+                    'email' => null,
+                ]);
+            }
+
+            // Pastikan supplier_id yang benar diteruskan
+            $validated['supplier_id'] = $supplier->id;  // Assign the correct supplier_id
+
+            // Menyimpan SKU secara acak
+            $validated['sku'] = strtoupper(Str::random(10));
+
+            // Menangani upload gambar
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $image_name = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/item'), $image_name);
+                $validated['image'] = asset('uploads/item/' . $image_name);
+            }
+
+            // Pastikan format tanggal valid dan disimpan dengan benar
+            $validated['entry_date'] = \Carbon\Carbon::parse($validated['entry_date'])->format('Y-m-d');
+            $validated['expiry_date'] = \Carbon\Carbon::parse($validated['expiry_date'])->format('Y-m-d');
+
+            $validated['purchase_price'] = floatval($validated['purchase_price']);
+
+
+            // Menyimpan data barang
+            Inventory::create([
+                'sku' => $validated['sku'],
+                'name' => $validated['name'],
+                'category_id' => $validated['category_id'],
+                'supplier_id' => $validated['supplier_id'],  // Menggunakan supplier_id
+                'quantity' => $validated['quantity'],
+                'unit' => $validated['unit'],
+                'description' => $validated['description'],
+                'price' => $validated['purchase_price'],
+                'image' => $validated['image'],
+                'entry_date' => $validated['entry_date'],
+                'expiry_date' => $validated['expiry_date'],
+                'status' => 'active',
+            ]);
+
+            return redirect('list_item')->with('success', 'Barang berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menambahkan barang: ' . $e->getMessage());
+        }
+    }
+
+    return redirect('index')->with("fail", "Hanya Admin yang dapat menambahkan barang.");
+}
+
+
+public function delete_item($id){
+    $user_type = Session::get('session_user_type');
+    if ($user_type == 'admin') {
+        $item = Inventory::find($id);
+        $item->delete();
+        return redirect('list_item')->with('success', 'Barang berhasil dihapus.');
+    }
+    return redirect('index')->with("fail", "Hanya Admin yang dapat menghapus barang.");
+}
+
+
+public function list_item_out(Request $request, $sort = 'default')
+{
+    $user_type = Session::get('session_user_type');
+
+    // Periksa apakah user adalah admin atau staff
+    if ($user_type === 'admin') {
+        // Inisialisasi query untuk mengambil data barang keluar
+        $data = InventoryOuts::query();
+
+        // Filter berdasarkan tanggal jika ada input date_range
+        if ($request->filled('date_range')) {
+            try {
+                $date_range = explode(' - ', $request->date_range);
+
+                // Validasi dan parsing tanggal dengan menggunakan Carbon
+                $start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $date_range[0])->startOfDay();
+                $end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $date_range[1])->endOfDay();
+
+                // Filter data berdasarkan rentang tanggal yang diberikan
+                $data->whereBetween('transaction_date', [$start_date, $end_date]);
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Format rentang tanggal tidak valid.');
+            }
         }
 
-        // Log the import
-        Log::create([
-            'level' => 'info',
-            'message' => 'Inventory imported from Excel file',
-            'context' => [
-                    'file_name' => $request->file('excel_file')->getClientOriginalName(),
-                    'user_type' => Session::get('session_user_type'),
-                    'user_name' => Session::get('session_name'),
-                ],
+        // Mengatur urutan data berdasarkan parameter
+        if ($sort == 'desc') {
+            // Urutkan berdasarkan tanggal terbaru (transaction_date descending)
+            $data = $data->orderByDesc('transaction_date');
+        }
+
+        // Ambil data dengan pagination setelah semua filter diterapkan
+        $inventoryOuts = $data->paginate(10)->appends($request->query());
+
+        // Return view dengan data barang keluar
+        return view('list_item_out', compact('inventoryOuts'));
+    }
+
+    // Redirect jika bukan admin atau staff
+    return redirect('index')->with("fail", "Hanya Admin yang dapat melihat daftar barang keluar.");
+}
+
+
+
+
+
+
+
+
+    /**
+     * Menangani Barang Keluar
+     */
+
+
+    /**
+     * Menangani Stok Opname
+     */
+    public function stokOpname(Request $request)
+    {
+        $request->validate([
+            'sku' => 'required|exists:inventory,sku',
+            'actual_quantity' => 'required|integer|min:0',
         ]);
 
-        return back()->with('success', 'Inventory imported successfully.');
+        DB::transaction(function () use ($request) {
+            $inventory = Inventory::where('sku', $request->sku)->firstOrFail();
+
+            // Catat selisih stok
+            $difference = $request->actual_quantity - $inventory->quantity;
+
+            // Update stok barang
+            $inventory->quantity = $request->actual_quantity;
+            $inventory->save();
+
+            // Simpan riwayat stok opname
+            DB::table('inventory_logs')->insert([
+                'inventory_id' => $inventory->id,
+                'type' => 'opname',
+                'quantity' => $difference,
+                'user_id' => Auth::id(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Stok opname berhasil dilakukan.');
     }
 
-    public function downloadPDF()
+    /**
+     * Menampilkan Riwayat Transaksi Barang
+     */
+    public function riwayatTransaksi()
     {
-        $data = ['list_item' => DB::table('item')->get()];
-        $pdf = PDF::loadView('example', $data);
+        $logs = DB::table('inventory_logs')
+            ->join('inventory', 'inventory_logs.inventory_id', '=', 'inventory.id')
+            ->select('inventory_logs.*', 'inventory.sku', 'inventory.name')
+            ->orderBy('inventory_logs.created_at', 'desc')
+            ->paginate(10);
 
-        $fileName = 'stock_details_' . date('Ymd_His') . '.pdf';
-
-        return $pdf->download($fileName);
+        return view('inventory.riwayat', compact('logs'));
     }
 }

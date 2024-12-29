@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
+            $table->string('ip_address', 45)->nullable();
+            $table->timestamp('user_agent')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade'); // Optional user relation
             $table->text('payload'); // Session data
             $table->integer('last_activity'); // Timestamp for session expiry

@@ -21,8 +21,7 @@
                                 <hr>
                                 <form class="form-group mt-5 mb-5 login-input" name="login" id="login"
                                     action="{{url('login')}}" method="POST">
-                                    {{ csrf_field() }}
-                                    {{ csrf_field() }}
+                                    @csrf
                                     @if (Session::has('success'))
                                     <div class="alert alert-success">
                                         {{Session::get('success')}}
@@ -41,10 +40,10 @@
                                         <input type="password" class="form-control" name="pwd" id="pwd"
                                             placeholder="Password" required>
                                     </div>
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <button class="btn login-form__btn submit float-right">Sign In</button>
                                 </form>
-                                <p class="mt-5 login-form__footer">Dont have account? <a href="{{url('emp_registration')}}"
-                                        class="text-primary">Sign Up</a> now</p>
+
                             </div>
                         </div>
                     </div>

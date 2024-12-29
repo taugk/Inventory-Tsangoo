@@ -170,6 +170,47 @@
     @endif
 </script>
 
+<script>
+    // Event handler untuk tombol Import
+    document.getElementById('importButton').addEventListener('click', function () {
+        document.getElementById('excelInput').click(); // Membuka dialog pemilihan file
+    });
+
+    // Event handler untuk input file
+    document.getElementById('excelInput').addEventListener('change', function () {
+        if (this.files.length > 0) {
+            // Jika ada file yang dipilih, submit form
+            document.getElementById('importForm').submit();
+        }
+    });
+</script>
+<!-- Date Range Picker JS -->
+<script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#date_range').daterangepicker({
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            autoUpdateInput: false,
+            opens: 'left',
+        });
+
+        // Update input field on apply
+        $('#date_range').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        // Clear input field on cancel
+        $('#date_range').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+    });
+</script>
+
+
+
 {{-- <script>
   $(document).ready(function() {
       // Initialize Select2

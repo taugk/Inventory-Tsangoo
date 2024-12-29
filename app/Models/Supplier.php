@@ -14,6 +14,7 @@ class Supplier extends Model
         'name',
         'contact',
         'email',
+
         'address',
     ];
 
@@ -25,5 +26,15 @@ class Supplier extends Model
     public function purchases()
     {
         return $this->hasMany(Purchase::class);
+    }
+
+    public function inventory()
+    {
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function inventoryOuts()
+    {
+        return $this->hasMany(InventoryOuts::class);
     }
 }

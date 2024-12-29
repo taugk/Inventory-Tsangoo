@@ -15,7 +15,7 @@ Route::get('/emp_registration', [UserController::class, 'emp_registration']);
 Route::post('/emp_registration', [UserController::class, 'emp_registration_post']);
 Route::get('/emp_list', [UserController::class, 'emp_list']);
 Route::get('/emp_edit/{id}', [UserController::class, 'emp_edit']);
-Route::put('/edit_emp/{id}', [UserController::class, 'emp_edit_post'])->name('edit_emp');
+Route::put('/emp_edit_post/{id}', [UserController::class, 'emp_edit_post'])->name('emp_edit_post');
 Route::delete('/emp_delete/{id}', [UserController::class, 'emp_delete']);
 Route::get('/emp_detail/{id}', [UserController::class, 'emp_detail']);
 
@@ -31,13 +31,18 @@ Route::delete('/category_delete/{id}', [CategoryController::class, 'category_del
 
 
 Route::get('/add_item', [InventoryController::class, 'add_item']);
-Route::post('/add_item', [InventoryController::class, 'add_item_post']);
-Route::get('/list_item', [InventoryController::class, 'list_item']);
+Route::post('/add_item_entry', [InventoryController::class, 'add_item_post']);
+Route::get('/list_item', [InventoryController::class, 'list_barang']);
+Route::get('/list_stock_in', [InventoryController::class, 'list_barang'])->defaults('sort','desc');
 Route::get('/list_item_status', [InventoryController::class, 'list_item_status']);
+Route::get('/list_item_out', [InventoryController::class, 'list_item_out']);
+Route::get('/item_out_add', [InventoryOutsController::class, 'add_item_out']);
+Route::post('/inventory_out', [InventoryOutsController::class, 'inventory_outs']);
 Route::get('/list_item_status_change/{id}/{item_status}', [InventoryController::class, 'list_item_status_change']);
 Route::post('/get_item', [InventoryController::class, 'get_item']);
 Route::post('/edit_item', [InventoryController::class, 'edit_item']);
 Route::post('/edit_item_post', [InventoryController::class, 'edit_item_post']);
+Route::delete('/inventory_delete/{id}', [InventoryController::class, 'delete_item']);
 
 Route::get('/add_purchase', [PurchaseController::class, 'add_purchase']);
 Route::post('/add_purchase', [PurchaseController::class, 'add_purchase_post']);

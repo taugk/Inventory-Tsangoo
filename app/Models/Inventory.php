@@ -2,21 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
+    use HasFactory;
     protected $table = 'inventory';
 
     protected $fillable = [
+        'sku',
         'name',
         'description',
         'quantity',
         'price',
+        'status',
+        'supplier_id',
         'image',
         'category_id',
-        'expiry_date',
         'user_id',
+        'unit',
+        'expiry_date',
+        'entry_date',
+        'created_at',
+    ];
+
+    protected $casts = [
+        'expiry_date' => 'datetime',
+        'entry_date' => 'datetime',
     ];
 
     public function category()
@@ -37,5 +50,15 @@ class Inventory extends Model
     public function purchaseDetails()
     {
         return $this->hasMany(PurchaseDetails::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function inventoryOuts()
+    {
+        return $this->hasMany(InventoryOuts::class);
     }
 }
