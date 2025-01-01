@@ -45,7 +45,7 @@ class SupplierController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function add_supplier_post(Request $request)
     {
         $user_type = Session::get('session_user_type');
         if ($user_type == 'admin') {

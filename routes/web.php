@@ -53,8 +53,8 @@ Route::get('/stock_updates', [InventoryController::class, 'sendStockUpdates']);
 Route::get('/stock_opname', [StockOpnameController::class, 'index']);
 
 
-Route::get('/add_supplier', [SupplierController::class, 'add_suplier']);
-Route::post('/add_suplier_post', [SupplierController::class, 'store']);
+Route::get('/add_supplier', [SupplierController::class, 'add_supplier']);
+Route::post('/add_supplier_post', [SupplierController::class, 'add_supplier_post']);
 Route::get('/supp_list', [SupplierController::class, 'index']);
 Route::delete('/supp_delete/{id}', [SupplierController::class, 'delete']);
 

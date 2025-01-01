@@ -79,7 +79,7 @@
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
-                                <form action="{{ url('list_supplier') }}" method="GET" class="form-inline">
+                                <form action="{{ url('supp_list') }}" method="GET" class="form-inline">
                                     <input type="text" name="date_range" id="date_range" class="form-control mr-3"
                                         placeholder="Pilih rentang tanggal" value="{{ request('date_range') }}">
 
@@ -94,7 +94,7 @@
                                     <tr>
                                         <th>Nama Supplier</th>
                                         <th>Kontak</th>
-
+                                        
                                         <th>Email</th>
                                         <th>Aksi</th>
                                     </tr>
@@ -105,13 +105,15 @@
                                     <tr>
                                         <td>{{ $supplier->name }}</td>
                                         <td>{{ $supplier->contact }}</td>
+                                        
                                         <td>{{ $supplier->email }}</td>
                                         <td>
-                                            <form action="{{ url('supp_delete', $supplier->id) }}" method="POST" id="delete-form-{{ $supplier->id }}" style="display:inline;">
+                                            <form action="{{ url('supplier_delete', $supplier->id) }}" method="POST" id="delete-form-{{ $supplier->id }}" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="button" class="btn btn-danger delete-btn" id="delete" data-id="{{ $supplier->id }}"><i class="far fa-trash-alt"></i></button>
                                             </form>
+
                                             <a href="{{ url('edit_supplier', $supplier->id) }}" class="btn btn-warning"><i class="far fa-edit"></i></a>
                                         </td>
                                     </tr>

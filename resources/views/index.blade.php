@@ -35,7 +35,7 @@
                             <h2 class="text-white">{{$total_stock_in}}</h2>
                             <p class="text-white mb-0">{{ date('M Y') }}</p>
                         </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-shopping-cart"></i></span>
+                        <span class="float-right display-5 opacity-5"><i class="fa fa-arrow-down"></i></span>
                     </div>
                 </div>
             </div>
@@ -44,10 +44,10 @@
                     <div class="card-body">
                         <h3 class="card-title text-white">Barang Keluar</h3>
                         <div class="d-inline-block">
-                            <h2 class="text-white">₹ {{$total_stock_out}}</h2>
+                            <h2 class="text-white">{{$total_stock_out}}</h2>
                             <p class="text-white mb-0">{{ date('M Y')  }}</p>
                         </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-inr"></i></span>
+                        <span class="float-right display-5 opacity-5"><i class="fa fa-arrow-up"></i></span>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                             <h2 class="text-white">{{ $total_supplier }}</h2>
                             <p class="text-white mb-0">{{ date('M Y') }}</p>
                         </div>
-                        <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
+                        <span class="float-right display-5 opacity-5"><i class="fas fa-truck"></i></span>
                     </div>
                 </div>
             </div>
@@ -80,19 +80,17 @@
             <div class="col-lg-9">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Logs</h4>
+                        <h4 class="card-title">Riwayat</h4>
                         <div class="active-member ">
                             <div class="table-responsive activity">
                                 <table class="table table-xs mb-0">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Level</th>
-                                            <th>Message</th>
-                                            <th>User Type</th>
-                                            <th>User Name</th>
-                                            <th>Context</th>
-                                            <th>Created At</th>
+                                            <th>Tingkat</th>
+                                            <th>Aktivitas</th>
+                                            <th>Pengguna</th>
+                                            <th>Waktu</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -101,38 +99,17 @@
                                             <td>{{ $log->id }}</td>
                                             <td>{{ $log->level }}</td>
                                             <td>{{ $log->message }}</td>
-                                            <td>
-                                                @php
-                                                $context = json_decode($log->context, true);
-                                                @endphp
-                                                {{ $context['user_type'] ?? 'N/A' }}
-                                            </td>
+                                            
                                             <td>
                                                 @php
                                                 $context = json_decode($log->context, true);
                                                 @endphp
                                                 {{ $context['user_name'] ?? 'N/A' }}
                                             </td>
+                                            
                                             <td>
-                                                @php
-                                                $context = json_decode($log->context, true);
-                                                @endphp
-                                                {{$context['item_id'] ?? '-'}} - {{$context['item_name'] ?? '-' }} -
-                                                {{$log->message}}
+                                                {{ $log->created_at }}
                                             </td>
-                                            {{-- <td>{{ json_encode($log->context) }}</td> --}}
-                                            {{-- <td>
-                                                <pre>{{ json_encode(json_decode($log->context, true), JSON_PRETTY_PRINT) }}</pre>
-                                            </td> --}}
-                                            {{-- <td>
-                                                <ul>
-                                                    @foreach(json_decode($log->context, true) as $key => $value)
-                                                    <li><strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong> {{
-                                                        $value }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            </td> --}}
-                                            <td>{{ $log->created_at }}</td>
                                         </tr>
                                         @empty
                                         <tr>

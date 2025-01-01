@@ -25,7 +25,7 @@
                 <h4 class="card-title">Tambah Supplier</h4>
                 <hr>
                 <form class="form-group" name="supplier_registration" id="supplier_registration"
-                    action="{{url('store_supplier')}}" method="POST" enctype="multipart/form-data">
+                    action="{{url('add_suplier_post')}}" method="POST" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     @if (Session::has('success'))
                     <div class="alert alert-success">
