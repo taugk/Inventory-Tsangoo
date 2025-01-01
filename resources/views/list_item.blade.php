@@ -79,7 +79,7 @@
                                 </div>
 
                                 <div class="d-flex align-items-center mb-3">
-                                    <form action="{{ url('emp_list') }}" method="GET" class="form-inline">
+                                    <form action="{{ url('list_item') }}" method="GET" class="form-inline">
                                         <input type="text" name="date_range" id="date_range" class="form-control mr-3"
                                             placeholder="Pilih rentang tanggal" value="{{ request('date_range') }}">
 
@@ -111,16 +111,24 @@
                                         <td>{{ $item->category ? $item->category->name : 'Tidak Ada Kategori' }}</td>
                                         <td>{{ $item->quantity }}</td>
                                         <td>Rp{{ number_format($item->price, 2, ',', '.') }}</td>
-                                        <td>{{ $item->expiry_date ? $item->expiry_date->format('Y-m-d') : 'Tidak Ada Kadaluarsa' }}</td>
-                                        <td>{{ $item->status === 'active' ? 'Tersedia' : 'Tidak Tersedia' }}</td>
+                                        <td>{{ $item->expiry_date ? $item->expiry_date->format('d-m-Y') : 'Tidak Ada Kadaluarsa' }}</td>
+                                        <td>
+                                            @if($item->status == 'available')
+                                            <span class="badge badge-success">Tersedia</span>
+                                            @elseif($item->status == 'not available')
+                                            <span class="badge badge-danger">Tidak Tersedia</span>
+                                            @elseif ($item->status == 'low stock')
+                                            <span class="badge badge-warning">Stok Sedikit</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             <form action="{{ url('inventory_delete', $item->id) }}" method="POST" id="delete-form-{{ $item->id }}" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="button" class="btn btn-danger delete-btn" id="delete" data-id="{{ $item->id }}"><i class="far fa-trash-alt"></i></button>
                                             </form>
-                                            <a href="{{ url('inventory_edit', $item->id) }}" class="btn btn-warning"><i class="far fa-edit"></i></a>
-                                            <a href="{{ url('inventory_detail', $item->id) }}" class="btn btn-info"><i class="far fa-eye"></i></a>
+                                            <a href="{{ url('edit_item', $item->id) }}" class="btn btn-warning"><i class="far fa-edit"></i></a>
+                                            <a href="{{ url('item_detail', $item->id) }}" class="btn btn-info"><i class="far fa-eye"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach

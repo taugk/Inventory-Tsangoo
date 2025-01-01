@@ -2,18 +2,18 @@
     <!--**********************************
         Nav header start
     ***********************************-->
-    <div class="nav-header">
-        <div class="brand-logo">
+    <div class="nav-header d-flex align-items-center justify-content-center">
+        <div class="brand-logo text-center">
             <a href="#">
-                <b class="logo-abbr"><img src="{{asset('assets/images/logo.png')}}" alt=""> </b>
-                <span class="logo-compact"><img src="{{asset('assets//images/logo-compact.png')}}" alt=""></span>
+                <b class="logo-abbr"><img src="{{asset('assets/images/logo_compact.png')}}" alt="" style="width: 100px;"></b>
+                <span class="logo-compact"><img src="{{asset('assets/images/logo_compact.png')}}" alt=""></span>
                 <span class="brand-title">
-                    <img src="{{asset('assets/images/logo-text.png')}}" alt="">
+                    <img src="{{asset('assets/images/profile/logo.png')}}" alt="" style="width: 200px;">
                 </span>
             </a>
-
         </div>
     </div>
+
     <!--**********************************
         Nav header end
     ***********************************-->
@@ -46,6 +46,9 @@
             </div> --}}
             <div class="header-right">
                 <ul class="clearfix">
+
+
+
                     {{-- <li class="icons dropdown"><a href="javascript:void(0)" data-toggle="dropdown">
                             <i class="mdi mdi-email-outline"></i>
                             <span class="badge badge-pill gradient-1">3</span>

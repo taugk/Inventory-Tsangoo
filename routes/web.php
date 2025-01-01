@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [UserController::class, 'index']);
 Route::get('/index', [UserController::class, 'index']);
-Route::get('/login', [UserController::class, 'login']);
-Route::post('/login', [UserController::class, 'login_post']);
-Route::get('/logout', [UserController::class, 'logout']);
+Route::get('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login_post']);
+Route::get('/logout', [AuthController::class, 'logout']);
 Route::get('/emp_registration', [UserController::class, 'emp_registration']);
 Route::post('/emp_registration', [UserController::class, 'emp_registration_post']);
 Route::get('/emp_list', [UserController::class, 'emp_list']);
@@ -41,17 +41,22 @@ Route::post('/inventory_out', [InventoryOutsController::class, 'inventory_outs']
 Route::get('/list_item_status_change/{id}/{item_status}', [InventoryController::class, 'list_item_status_change']);
 Route::post('/get_item', [InventoryController::class, 'get_item']);
 Route::post('/edit_item', [InventoryController::class, 'edit_item']);
-Route::post('/edit_item_post', [InventoryController::class, 'edit_item_post']);
 Route::delete('/inventory_delete/{id}', [InventoryController::class, 'delete_item']);
 Route::get('/export_inventory_in', [InventoryController::class, 'reportinventory_In']);
 Route::get('/export_inventory_out', [InventoryController::class, 'reportinventory_Out']);
+Route::get('/edit_item/{id}', [InventoryController::class, 'edit_item']);
+Route::put('/edit_item_post/{id}', [InventoryController::class, 'edit_item_post'])->name('edit_item_post');
+Route::get('/item_detail/{id}', [InventoryController::class, 'detail_item']);
+
+Route::get('/stock_updates', [InventoryController::class, 'sendStockUpdates']);
+
+Route::get('/stock_opname', [StockOpnameController::class, 'index']);
 
 
-Route::get('/add_purchase', [PurchaseController::class, 'add_purchase']);
-Route::post('/add_purchase', [PurchaseController::class, 'add_purchase_post']);
-Route::post('/fetch_vendor_details', [PurchaseController::class, 'fetch_vendor_details']);
-Route::post('/fetch_item_details', [PurchaseController::class, 'fetch_item_details']);
-Route::get('/list_purchase', [PurchaseController::class, 'list_purchase']);
+Route::get('/add_supplier', [SupplierController::class, 'add_suplier']);
+Route::post('/add_suplier_post', [SupplierController::class, 'store']);
+Route::get('/supp_list', [SupplierController::class, 'index']);
+Route::delete('/supp_delete/{id}', [SupplierController::class, 'delete']);
 
 
 Route::get('/export', [InventoryController::class, 'exportInventory']);

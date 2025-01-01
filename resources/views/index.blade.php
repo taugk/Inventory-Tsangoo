@@ -30,7 +30,7 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="card gradient-1">
                     <div class="card-body">
-                        <h3 class="card-title text-white">Item In</h3>
+                        <h3 class="card-title text-white">Barang masuk</h3>
                         <div class="d-inline-block">
                             <h2 class="text-white">{{$total_stock_in}}</h2>
                             <p class="text-white mb-0">{{ date('M Y') }}</p>
@@ -42,7 +42,7 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="card gradient-2">
                     <div class="card-body">
-                        <h3 class="card-title text-white">Item Out</h3>
+                        <h3 class="card-title text-white">Barang Keluar</h3>
                         <div class="d-inline-block">
                             <h2 class="text-white">₹ {{$total_stock_out}}</h2>
                             <p class="text-white mb-0">{{ date('M Y')  }}</p>
@@ -66,7 +66,7 @@
             <div class="col-lg-3 col-sm-6">
                 <div class="card gradient-4">
                     <div class="card-body">
-                        <h3 class="card-title text-white">Supplier In</h3>
+                        <h3 class="card-title text-white">Supplier</h3>
                         <div class="d-inline-block">
                             <h2 class="text-white">{{ $total_supplier }}</h2>
                             <p class="text-white mb-0">{{ date('M Y') }}</p>
@@ -149,7 +149,7 @@
             <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Low Stocks</h4>
+                        <h4 class="card-title">Stok Barang Sedikit</h4>
                         <div id="activity" class="activity">
                             <table class="table table-xs mb-0">
                                 <thead>
@@ -159,19 +159,19 @@
                                         <th>Qty</th>
                                     </tr>
                                 </thead>
-                                {{-- <tbody>
+                                <tbody>
                                     @forelse($items as $value)
                                     <tr>
-                                        <td>{{ $value->id }}</td>
-                                        <td>{{ $value->item_name }}</td>
-                                        <td>{{ $value->item_stock }}</td>
+                                        <td>{{ $value->sku }}</td>
+                                        <td>{{ $value->name }}</td>
+                                        <td>{{ $value->quantity }}</td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="3">No logs found.</td>
+                                        <td colspan="3">Tidak ada data barang.</td>
                                     </tr>
                                     @endforelse
-                                </tbody> --}}
+                                </tbody>
 
 
                             </table>

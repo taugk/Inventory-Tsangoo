@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Log;
 use App\Models\Category;
 use App\Models\Supplier;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Inventory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\InventoryOuts;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use App\Events\StockLowNotification;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Facades\Session;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 
 class InventoryController extends Controller
@@ -132,7 +136,7 @@ class InventoryController extends Controller
 
 
             // Menyimpan data barang
-            Inventory::create([
+            $item =Inventory::create([
                 'sku' => $validated['sku'],
                 'name' => $validated['name'],
                 'category_id' => $validated['category_id'],
@@ -144,7 +148,21 @@ class InventoryController extends Controller
                 'image' => $validated['image'],
                 'entry_date' => $validated['entry_date'],
                 'expiry_date' => $validated['expiry_date'],
-                'status' => 'active',
+                'status' => 'available',
+            ]);
+
+            //Menyimpan riwayat barang masuk
+            Log::create([
+                'level' => 'info',
+                'message' => "Barang masuk: {$item->name}, SKU: {$item->sku}, Jumlah: {$item->quantity}",
+                'context' => json_encode([
+                    'user_id' => Session::get('session_user_id'),
+                    'user_type' => Session::get('session_user_type'),
+                    'user_name' => Session::get('session_name'),
+                    'item_id' => $item->id,
+                    'quantity' => $item->quantity,
+                ]),
+                'action' => 'add_item',
             ]);
 
             return redirect('list_item')->with('success', 'Barang berhasil ditambahkan.');
@@ -156,6 +174,94 @@ class InventoryController extends Controller
     return redirect('index')->with("fail", "Hanya Admin yang dapat menambahkan barang.");
 }
 
+public function edit_item($id){
+    $user_type = Session::get('session_user_type');
+    if($user_type == 'admin'){
+    $items = Inventory::find($id);
+    $category = Category::all();
+    $supplier = Supplier::all();
+
+    return view('edit_item', compact('items', 'category', 'supplier'));
+    }
+    return redirect('index')->with("fail", "Hanya Admin yang dapat mengedit barang.");
+}
+
+public function edit_item_post(Request $request, $id)
+{
+    $user_type = Session::get('session_user_type');
+    if ($user_type == 'admin') {
+
+        // Validate incoming request
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'purchase_price' => 'required|numeric',
+            'quantity' => 'required|numeric',
+            'expiry_date' => 'required|date',
+            'entry_date' => 'required|date',
+            'description' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Find the item
+        $item = Inventory::find($id);
+
+        // Get current quantity and status
+        $current_quantity = $item->quantity;
+        $current_status = $item->status;
+
+        // Check if the quantity is low stock and whether there's a request to add stock
+        if ($current_quantity < 10 && $validated['quantity'] > $current_quantity) {
+            // If quantity is low and user is adding stock, update status
+            $item->status = 'available'; // Available stock
+        } elseif ($current_quantity >= 10 && $validated['quantity'] < $current_quantity) {
+            // If quantity is high and user is removing stock, update status
+            if ($validated['quantity'] <= 0) {
+                $item->status = 'not available'; // Out of stock
+            } else {
+                $item->status = 'low stock'; // Low stock
+            }
+        } elseif ($validated['quantity'] <= 10 && $validated['quantity'] > 0) {
+            // If stock is low but there’s a valid amount, mark as 'Low Stock'
+            $item->status = 'low stock';
+        }
+
+        // Update item details
+        $item->name = $validated['name'];
+        $item->category_id = $validated['category_id'];
+        $item->supplier_id = $validated['supplier_id'];
+        $item->price = $validated['purchase_price'];
+        $item->quantity = $validated['quantity']; // Update quantity
+        $item->expiry_date = Carbon::parse($validated['expiry_date'])->format('Y-m-d');
+        $item->entry_date = Carbon::parse($validated['entry_date'])->format('Y-m-d');
+        $item->description = $validated['description'];
+
+        // Process image if exists
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $image_name = time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads/item'), $image_name);
+            $item->image = asset('uploads/item/' . $image_name);
+        }
+
+        // Save the updated item
+        $item->save();
+
+        return redirect('list_item')->with('success', 'Barang berhasil diperbarui.');
+    } else {
+        return redirect('index')->with("fail", "Hanya Admin yang dapat mengedit barang.");
+    }
+}
+
+public function detail_item($id){
+    $user_type = Session::get('session_user_type');
+    if($user_type == 'admin'){
+    $item = Inventory::find($id);
+    return view('item_detail', compact('item'));
+    }
+    return redirect('index')->with("fail", "Hanya Admin yang dapat melihat detail barang.");
+}
 
 public function delete_item($id){
     $user_type = Session::get('session_user_type');
@@ -166,7 +272,6 @@ public function delete_item($id){
     }
     return redirect('index')->with("fail", "Hanya Admin yang dapat menghapus barang.");
 }
-
 
 public function list_item_out(Request $request, $sort = 'default')
 {
@@ -243,7 +348,33 @@ public function reportinventory_Out() {
     return $this->generateReport('layouts.reportinventory', 'reportinventory_out', $dataQuery, 'Barang Keluar');
 }
 
+public function sendStockUpdates()
+{
+    // Menentukan jumlah stok rendah yang akan ditampilkan (misalnya, <= 3)
+    $lowStockItems = Inventory::where('quantity', '<=', 3)->get();
 
+    // Jika tidak ada produk dengan stok rendah, kirimkan notifikasi kosong
+    if ($lowStockItems->isEmpty()) {
+        $lowStockItems = collect([]);
+    }
+
+    // Menyebarkan event ke Pusher
+    broadcast(new StockLowNotification($lowStockItems));
+
+    // Mengirimkan respons SSE (untuk penggunaan lain jika dibutuhkan)
+    $response = new StreamedResponse(function () use ($lowStockItems) {
+        echo "data: " . $lowStockItems->toJson() . "\n\n";
+        ob_flush();
+        flush();
+    });
+
+    $response->headers->set('Content-Type', 'text/event-stream');
+    $response->headers->set('Cache-Control', 'no-cache');
+    $response->headers->set('Connection', 'keep-alive');
+    $response->headers->set('Transfer-Encoding', 'chunked');
+
+    return $response;
+}
 
 
 

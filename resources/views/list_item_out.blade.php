@@ -96,7 +96,7 @@
                                         <th>Gambar</th>
                                         <th>Kategori</th>
                                         <th>Jumlah Keluar</th>
-                                        <th>Harga</th>
+
                                         <th>Tanggal Keluar</th>
                                         <th>Supplier</th>
                                         <th>Aksi</th>

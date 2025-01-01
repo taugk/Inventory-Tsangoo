@@ -39,6 +39,7 @@
 
 
 
+<!-- Include the search filter functionality on every page -->
 <script>
     // Fungsi untuk menyaring data berdasarkan input pencarian
     function filterTable(searchValue) {
@@ -96,22 +97,77 @@
     }
 
     // Event listener untuk tombol search
-    document.getElementById('globalSearchButton').addEventListener('click', function() {
-        let searchValue = document.getElementById('globalSearchInput').value.trim().toLowerCase(); // Ambil nilai dari input
-        filterTable(searchValue); // Panggil fungsi filter untuk menyaring data
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchButton = document.getElementById('globalSearchButton');
+        const searchInput = document.getElementById('globalSearchInput');
 
-    // Event listener untuk input form, jika kosong tampilkan semua data
-    document.getElementById('globalSearchInput').addEventListener('input', function() {
-        let searchValue = this.value.trim().toLowerCase(); // Ambil nilai dari input
+        if (searchButton && searchInput) {
+            searchButton.addEventListener('click', function() {
+                let searchValue = searchInput.value.trim().toLowerCase(); // Ambil nilai dari input
+                filterTable(searchValue); // Panggil fungsi filter untuk menyaring data
+            });
 
-        if (searchValue === "") {
-            // Jika input kosong, tampilkan semua baris
-            filterTable("");
-        } else {
-            filterTable(searchValue); // Panggil fungsi filter untuk menyaring data
+            searchInput.addEventListener('input', function() {
+                let searchValue = this.value.trim().toLowerCase(); // Ambil nilai dari input
+
+                if (searchValue === "") {
+                    // Jika input kosong, tampilkan semua baris
+                    filterTable("");
+                } else {
+                    filterTable(searchValue); // Panggil fungsi filter untuk menyaring data
+                }
+            });
         }
     });
+</script>
+
+
+
+{{-- Notifikasi --}}
+<script>
+    // Membuka koneksi ke route /stock-updates
+    const source = new EventSource('/stock-updates');
+
+    // Ketika ada data baru (stok rendah)
+    source.onmessage = function(event) {
+        // Log data mentah dari event
+        console.log('Received data:', event.data);
+
+        const items = JSON.parse(event.data);
+
+        // Cek jika items kosong
+        console.log('Parsed items:', items);
+
+        // Dapatkan elemen untuk notifikasi lonceng
+        const notificationCount = document.getElementById('notification-count');
+        const notificationTitle = document.getElementById('notification-title');
+        const notificationList = document.getElementById('notification-list');
+
+        if (items.length > 0) {
+            // Perbarui jumlah notifikasi
+            notificationCount.textContent = items.length;
+            notificationTitle.textContent = items.length + " New Notifications";
+
+            // Tampilkan daftar notifikasi stok rendah
+            notificationList.innerHTML = ''; // Kosongkan daftar notifikasi
+            items.forEach(item => {
+                const notificationItem = document.createElement('li');
+                notificationItem.innerHTML = `
+                    <a href="javascript:void(0)">
+                        <span class="mr-3 avatar-icon bg-danger-lighten-2"><i class="mdi mdi-bell-alert"></i></span>
+                        <div class="notification-content">
+                            <h6 class="notification-heading">Low Stock Alert</h6>
+                            <span class="notification-text">Item: ${item.name} is low in stock</span>
+                        </div>
+                    </a>
+                `;
+                notificationList.appendChild(notificationItem);
+            });
+
+            // Menambahkan status aktif pada lonceng
+            document.getElementById('notification-bell').classList.add('active');
+        }
+    };
 </script>
 
 
@@ -189,25 +245,27 @@
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script>
     $(document).ready(function () {
+        // Initialize the date range picker
         $('#date_range').daterangepicker({
             locale: {
                 format: 'YYYY-MM-DD'
             },
-            autoUpdateInput: false,
-            opens: 'left',
+            autoUpdateInput: false, // Disables auto update of input field
+            opens: 'left', // Defines the direction of the date picker
         });
 
-        // Update input field on apply
+        // Update the input field when a date range is selected
         $('#date_range').on('apply.daterangepicker', function (ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
         });
 
-        // Clear input field on cancel
+        // Clear the input field when the selection is canceled
         $('#date_range').on('cancel.daterangepicker', function (ev, picker) {
-            $(this).val('');
+            $(this).val(''); // Clears the input field
         });
     });
 </script>
+
 
 
 
